@@ -1,5 +1,5 @@
 "use client"
-import Header from "@/components/layout/Header"
+import ModernHeader from "@/components/layout/ModernHeader"
 import Footer from "@/components/layout/Footer"
 import HeroSection from "@/components/sections/HeroSection"
 import StatsSection from "@/components/sections/StatsSection"
@@ -12,7 +12,7 @@ import NewsSection from "@/components/sections/NewsSection"
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      <Header />
+      <ModernHeader />
       <main>
         <HeroSection />
         <StatsSection />

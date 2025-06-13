@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 import ModernHeader from "@/components/layout/ModernHeader"
 import Footer from "@/components/layout/Footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,9 +7,25 @@ import { Button } from "@/components/ui/button"
 import { Calendar, MapPin, Users, Clock } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import Image from "next/image"
+import EventRegistrationModal from "@/components/ui/EventRegistrationModal"
 
 export default function EventsPage() {
   const { t } = useLanguage()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<{
+    title: string
+    date: string
+    location: string
+  } | null>(null)
+
+  const handleRegisterClick = (event: any) => {
+    setSelectedEvent({
+      title: event.title,
+      date: event.date,
+      location: event.location
+    })
+    setIsModalOpen(true)
+  }
 
   const upcomingEvents = [
     {
@@ -88,11 +105,26 @@ export default function EventsPage() {
                 <Calendar className="w-4 h-4 mr-2" />
                 {t("events.page.title")}
               </div>
-              <h1 className="text-4xl lg:text-6xl font-display text-gray-900 leading-tight mb-6">
-                {t("events.page.hero.title")}
-                <span className="text-primary"> {t("events.page.hero.highlight")}</span>
+              <h1 className="font-display mb-6">
+                {/* Main Title */}
+                <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-gray-900 leading-tight mb-2 lg:mb-4">
+                  <span className="block">{t("events.page.hero.title")}</span>
+                </div>
+
+                {/* Highlight */}
+                <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight mb-2 lg:mb-4">
+                  <span className="gradient-text-primary font-bold">
+                    {t("events.page.hero.highlight")}
+                  </span>
+                </div>
               </h1>
-              <div className="w-20 h-1 bg-primary rounded-full mx-auto mb-6"></div>
+
+              {/* Elegant Divider */}
+              <div className="flex items-center justify-center mt-6 lg:mt-8 mb-6">
+                <div className="w-16 lg:w-20 h-1 bg-gradient-to-r from-primary to-emerald-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-primary rounded-full mx-4 animate-pulse"></div>
+                <div className="w-8 lg:w-12 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"></div>
+              </div>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">{t("events.page.hero.description")}</p>
             </div>
           </div>
@@ -151,7 +183,10 @@ export default function EventsPage() {
                         </span>
                       </div>
                     </div>
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-medium text-sm">
+                    <Button 
+                      onClick={() => handleRegisterClick(event)}
+                      className="w-full bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-medium text-sm"
+                    >
                       {t("events.register")}
                     </Button>
                   </CardContent>
@@ -224,6 +259,17 @@ export default function EventsPage() {
         </section>
       </main>
       <Footer />
+      
+      {/* Event Registration Modal */}
+      {selectedEvent && (
+        <EventRegistrationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          eventTitle={selectedEvent.title}
+          eventDate={selectedEvent.date}
+          eventLocation={selectedEvent.location}
+        />
+      )}
     </div>
   )
 }

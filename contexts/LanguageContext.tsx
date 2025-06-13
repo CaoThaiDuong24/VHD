@@ -17,6 +17,7 @@ const translations = {
     // Header
     "nav.home": "Trang chủ",
     "nav.about": "Về chúng tôi",
+    "nav.news": "Tin tức",
     "nav.events": "Sự kiện",
     "nav.projects": "Dự án",
     "nav.contact": "Liên hệ",
@@ -325,6 +326,7 @@ const translations = {
     // Header
     "nav.home": "Home",
     "nav.about": "About Us",
+    "nav.news": "News",
     "nav.events": "Events",
     "nav.projects": "Projects",
     "nav.contact": "Contact",

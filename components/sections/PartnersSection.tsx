@@ -4,7 +4,6 @@ import { Handshake, ArrowRight, Award, TrendingUp } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-
 export default function PartnersSection() {
   const { t } = useLanguage()
   const [hoveredPartner, setHoveredPartner] = useState<number | null>(null)
@@ -173,13 +172,16 @@ export default function PartnersSection() {
 
           {/* Premium CTA */}
           <div className="text-center mt-16">
-            <Button className="btn-primary px-10 py-4 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 group text-lg">
+            <Button 
+              className="btn-primary px-10 py-4 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 group text-lg"
+            >
               {t("partners.btn")}
               <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
           </div>
         </div>
       </div>
+
     </section>
   )
 }

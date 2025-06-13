@@ -1,12 +1,19 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { BookOpen, ChevronRight, Sparkles, Award, Users, TrendingUp } from "lucide-react"
 import Image from "next/image"
+import ContactModal from "@/components/ui/ContactModal"
 
 export default function HeroSection() {
   const { t, language } = useLanguage()
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
+
+  const handleContactClick = () => {
+    setIsContactModalOpen(true)
+  }
 
   return (
     <section className="relative pt-20 lg:pt-24 pb-20 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
@@ -77,6 +84,7 @@ export default function HeroSection() {
                 {t("hero.btn.learn")}
               </Button>
               <Button
+                onClick={handleContactClick}
                 variant="outline"
                 className="border-2 border-primary/20 text-primary hover:bg-primary hover:text-white px-6 lg:px-8 py-3 lg:py-4 text-base lg:text-lg font-semibold transition-all duration-300 rounded-xl hover:shadow-elegant whitespace-nowrap"
               >
@@ -146,6 +154,12 @@ export default function HeroSection() {
 
       {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent"></div>
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </section>
   )
 }

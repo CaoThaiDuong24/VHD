@@ -8,10 +8,12 @@ import { Menu, X, BookOpen, Sparkles } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import ContactModal from "@/components/ui/ContactModal"
 
 export default function ModernHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   const pathname = usePathname()
   const { t, language } = useLanguage()
 
@@ -26,10 +28,16 @@ export default function ModernHeader() {
   const menuItems = [
     { href: "/", label: t("nav.home") },
     { href: "/about", label: t("nav.about") },
+    { href: "/news", label: t("nav.news") },
     { href: "/events", label: t("nav.events") },
     { href: "/projects", label: t("nav.projects") },
     { href: "/contact", label: t("nav.contact") },
   ]
+
+  const handleContactClick = () => {
+    setIsContactModalOpen(true)
+    setIsMenuOpen(false) // Close mobile menu if open
+  }
 
   return (
     <header
@@ -65,8 +73,8 @@ export default function ModernHeader() {
               </div>
             </div>
 
-            {/* Brand Text Container - Fixed Width and Layout */}
-            <div className="group-hover:translate-x-1 transition-transform duration-500 min-w-0 flex-1 max-w-[280px] lg:max-w-[320px]">
+            {/* Brand Text Container - Improved Layout for Full Text Display */}
+            <div className="group-hover:translate-x-1 transition-transform duration-500 min-w-0 flex-1 max-w-[320px] lg:max-w-[400px] xl:max-w-[450px]">
               {/* RCP Title - Fixed Height */}
               <div className="flex items-baseline space-x-2 h-8 lg:h-10">
                 <span className="text-2xl lg:text-3xl font-display gradient-text-primary whitespace-nowrap flex-shrink-0">
@@ -75,14 +83,16 @@ export default function ModernHeader() {
                 <div className="w-2 h-2 bg-gradient-to-r from-primary to-emerald-500 rounded-full animate-pulse flex-shrink-0"></div>
               </div>
 
-              {/* Subtitle - Fixed Height and Consistent Styling */}
+              {/* Subtitle - Improved for Better Text Display */}
               <div className="h-8 lg:h-10 flex items-center">
                 <div
                   className={`
                     text-gray-600 font-medium tracking-wide leading-tight
-                    overflow-hidden text-ellipsis whitespace-nowrap
                     w-full
-                    ${language === "en" ? "text-xs lg:text-sm" : "text-xs lg:text-sm"}
+                    ${language === "en" 
+                      ? "text-xs lg:text-sm overflow-hidden text-ellipsis whitespace-nowrap" 
+                      : "text-xs lg:text-sm break-words"
+                    }
                   `}
                   title={t("header.brand.subtitle")}
                 >
@@ -141,7 +151,10 @@ export default function ModernHeader() {
 
             {/* Premium CTA Button - Fixed size */}
             <div className="hidden lg:block">
-              <Button className="btn-primary h-12 px-6 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105 text-base whitespace-nowrap">
+              <Button 
+                onClick={handleContactClick}
+                className="btn-primary h-12 px-6 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105 text-base whitespace-nowrap"
+              >
                 <BookOpen className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span>{t("header.cta")}</span>
               </Button>
@@ -216,7 +229,10 @@ export default function ModernHeader() {
 
             {/* Mobile CTA - Fixed height */}
             <div className="pt-4">
-              <Button className="w-full h-14 btn-primary rounded-xl font-semibold shadow-elegant">
+              <Button 
+                onClick={handleContactClick}
+                className="w-full h-14 btn-primary rounded-xl font-semibold shadow-elegant"
+              >
                 <BookOpen className="mr-2 h-5 w-5 flex-shrink-0" />
                 <span className="whitespace-nowrap">{t("header.cta.mobile")}</span>
               </Button>
@@ -224,6 +240,12 @@ export default function ModernHeader() {
           </div>
         </div>
       </div>
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </header>
   )
 }
