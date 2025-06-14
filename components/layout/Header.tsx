@@ -8,12 +8,9 @@ import { Menu, X, BookOpen, Sparkles } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import ContactModal from "@/components/ui/ContactModal"
-
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   const pathname = usePathname()
   
   // Safely get language context with fallback
@@ -28,10 +25,7 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const handleContactClick = () => {
-    setIsContactModalOpen(true)
-    setIsMenuOpen(false) // Close mobile menu if open
-  }
+
 
   const menuItems = [
     { href: "/", label: t("nav.home") },
@@ -110,13 +104,14 @@ export default function Header() {
               </div>
 
               <div className="hidden lg:block">
-                <Button 
-                  onClick={handleContactClick}
-                  className="btn-primary px-6 py-3 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105"
-                >
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Liên hệ ngay
-                </Button>
+                <Link href="/contact">
+                  <Button 
+                    className="btn-primary px-6 py-3 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105"
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Liên hệ ngay
+                  </Button>
+                </Link>
               </div>
 
               <Button
@@ -178,26 +173,20 @@ export default function Header() {
               </div>
 
               <div className="pt-4">
-                <Button 
-                  onClick={handleContactClick}
-                  className="w-full btn-primary py-4 rounded-xl font-semibold shadow-elegant"
-                >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Liên hệ với chúng tôi
-                </Button>
+                <Link href="/contact" className="w-full">
+                  <Button 
+                    className="w-full btn-primary py-4 rounded-xl font-semibold shadow-elegant"
+                  >
+                    <BookOpen className="mr-2 h-5 w-5" />
+                    Liên hệ với chúng tôi
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Contact Modal */}
-      {isContactModalOpen && (
-        <ContactModal 
-          isOpen={isContactModalOpen} 
-          onClose={() => setIsContactModalOpen(false)} 
-        />
-      )}
     </>
   )
 }

@@ -11,12 +11,14 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import RegistrationModal from '@/components/ui/RegistrationModal'
 
 export default function NewsDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { t, language } = useLanguage()
   const [backUrl, setBackUrl] = useState('/#news')
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
   
   const newsId = parseInt(params.id as string)
   const newsItem = getNewsById(newsId)
@@ -54,6 +56,10 @@ export default function NewsDetailPage() {
     } else {
       router.push('/#news')
     }
+  }
+
+  const handleRegistrationClick = () => {
+    setIsRegistrationModalOpen(true)
   }
 
   if (!newsItem) {
@@ -268,7 +274,10 @@ export default function NewsDetailPage() {
                     </div>
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                      <Button className="btn-primary px-8 py-4 text-lg font-semibold shadow-luxury hover:shadow-2xl transition-all duration-300 group transform hover:scale-105 flex-1">
+                      <Button 
+                        onClick={handleRegistrationClick}
+                        className="btn-primary px-8 py-4 text-lg font-semibold shadow-luxury hover:shadow-2xl transition-all duration-300 group transform hover:scale-105 flex-1"
+                      >
                         <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
                         {language === 'vi' ? 'Đăng ký ngay' : 'Register Now'}
                       </Button>
@@ -318,6 +327,13 @@ export default function NewsDetailPage() {
       </main>
       
       <Footer />
+
+      {/* Registration Modal */}
+      <RegistrationModal 
+        isOpen={isRegistrationModalOpen}
+        onClose={() => setIsRegistrationModalOpen(false)}
+        eventTitle={title}
+      />
     </div>
   )
 } 

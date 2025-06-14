@@ -308,7 +308,7 @@ const translations = {
     "footer.copyright": "2024 Trung tâm Phát triển Văn hóa đọc và Kinh tế Xuất bản. Tất cả quyền được bảo lưu.",
     "footer.privacy": "Chính sách bảo mật",
     "footer.terms": "Điều khoản sử dụng",
-    "footer.sitemap": "Sơ đồ trang web",
+
 
     // Categories
     "category.conference": "Hội thảo",
@@ -623,7 +623,7 @@ const translations = {
     "footer.copyright": "2024 Center for Developing Reading Culture and Publishing Economy. All rights reserved.",
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Use",
-    "footer.sitemap": "Sitemap",
+
 
     // Categories
     "category.conference": "Conference",

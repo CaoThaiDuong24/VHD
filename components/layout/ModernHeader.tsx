@@ -8,12 +8,9 @@ import { Menu, X, BookOpen, Sparkles } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import ContactModal from "@/components/ui/ContactModal"
-
 export default function ModernHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   const pathname = usePathname()
   const { t, language } = useLanguage()
 
@@ -34,10 +31,7 @@ export default function ModernHeader() {
     { href: "/contact", label: t("nav.contact") },
   ]
 
-  const handleContactClick = () => {
-    setIsContactModalOpen(true)
-    setIsMenuOpen(false) // Close mobile menu if open
-  }
+
 
   return (
     <header
@@ -151,13 +145,14 @@ export default function ModernHeader() {
 
             {/* Premium CTA Button - Fixed size */}
             <div className="hidden lg:block">
-              <Button 
-                onClick={handleContactClick}
-                className="btn-primary h-12 px-6 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105 text-base whitespace-nowrap"
-              >
-                <BookOpen className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span>{t("header.cta")}</span>
-              </Button>
+              <Link href="/contact">
+                <Button 
+                  className="btn-primary h-12 px-6 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105 text-base whitespace-nowrap"
+                >
+                  <BookOpen className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span>{t("header.cta")}</span>
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button - Fixed size */}
@@ -229,23 +224,19 @@ export default function ModernHeader() {
 
             {/* Mobile CTA - Fixed height */}
             <div className="pt-4">
-              <Button 
-                onClick={handleContactClick}
-                className="w-full h-14 btn-primary rounded-xl font-semibold shadow-elegant"
-              >
-                <BookOpen className="mr-2 h-5 w-5 flex-shrink-0" />
-                <span className="whitespace-nowrap">{t("header.cta.mobile")}</span>
-              </Button>
+              <Link href="/contact" className="w-full">
+                <Button 
+                  className="w-full h-14 btn-primary rounded-xl font-semibold shadow-elegant"
+                >
+                  <BookOpen className="mr-2 h-5 w-5 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{t("header.cta.mobile")}</span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Contact Modal */}
-      <ContactModal 
-        isOpen={isContactModalOpen}
-        onClose={() => setIsContactModalOpen(false)}
-      />
     </header>
   )
 }

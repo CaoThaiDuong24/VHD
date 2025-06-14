@@ -1,9 +1,10 @@
 "use client"
 
-import { MapPin, Mail, Phone, Facebook, MessageCircle, Globe } from "lucide-react"
+import { MapPin, Mail, Phone, Facebook, MessageCircle, Globe, Map } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
 import Image from "next/image"
+
 
 export default function Footer() {
   const { t, language } = useLanguage()
@@ -122,9 +123,13 @@ export default function Footer() {
               <a href="#" className="hover:text-white transition-colors duration-200 whitespace-nowrap">
                 {t("footer.terms")}
               </a>
-              <a href="#" className="hover:text-white transition-colors duration-200 whitespace-nowrap">
-                {t("footer.sitemap")}
-              </a>
+              <button 
+                className="flex items-center hover:text-white transition-colors duration-200 whitespace-nowrap"
+                onClick={() => {}}
+              >
+                <Map className="h-3 w-3 mr-1" />
+                {language === 'vi' ? 'Sơ đồ trang web' : 'Sitemap'}
+              </button>
             </div>
           </div>
         </div>
