@@ -3,6 +3,7 @@ export interface NewsItem {
   title: string;
   titleEn: string;
   image: string;
+  gallery?: GalleryImage[];
   category: string;
   categoryEn: string;
   date: string;
@@ -15,6 +16,27 @@ export interface NewsItem {
   descriptionEn: string;
   detailContent: string;
   detailContentEn: string;
+  // Optional fields for enhanced functionality
+  views?: number;
+  readingTime?: number; // in minutes
+  status?: 'draft' | 'published' | 'completed';
+  featured?: boolean;
+  tags?: string[];
+  author?: string;
+  authorEn?: string;
+  // WordPress integration fields
+  wpId?: number; // WordPress post ID
+  content?: string; // WordPress content field
+  excerpt?: string; // WordPress excerpt field
+  syncWithWP?: boolean; // Whether to sync with WordPress
+}
+
+// Interface for gallery images
+export interface GalleryImage {
+  id: string;
+  src: string;
+  alt: string;
+  caption?: string;
 }
 
 export const newsItems: NewsItem[] = [
@@ -33,6 +55,13 @@ export const newsItems: NewsItem[] = [
     participantsEn: "250+ participants",
     description: "Khám phá những hoạt động mới nhất trong việc thúc đẩy văn hóa đọc và phát triển ngành xuất bản...",
     descriptionEn: "Discover the latest activities in promoting reading culture and developing the publishing industry...",
+    views: 1234,
+    readingTime: 5,
+    status: "completed",
+    featured: true,
+    tags: ["văn hóa đọc", "hội thảo", "giáo dục"],
+    author: "Ban Tổ chức",
+    authorEn: "Organizing Committee",
     detailContent: "Hội thảo Phát triển văn hóa đọc trong cộng đồng là sự kiện quan trọng nhằm tập hợp các chuyên gia, nhà giáo dục, và những người quan tâm đến việc xây dựng thói quen đọc sách trong xã hội. Sự kiện sẽ thảo luận về các phương pháp hiệu quả để khuyến khích người dân, đặc biệt là trẻ em và thanh thiếu niên, yêu thích đọc sách.\n\nCác chủ đề chính bao gồm:\n• Vai trò của gia đình trong việc nuôi dưỡng thói quen đọc\n• Ứng dụng công nghệ trong việc tiếp cận sách\n• Xây dựng thư viện cộng đồng\n• Các chương trình khuyến đọc sáng tạo\n\nHội thảo quy tụ hơn 250 chuyên gia, nhà giáo dục và những người yêu sách từ khắp cả nước. Đây là cơ hội tuyệt vời để chia sẻ kinh nghiệm, học hỏi từ các mô hình thành công và xây dựng mạng lưới hợp tác trong việc phát triển văn hóa đọc.",
     detailContentEn: "The Community Reading Culture Development Conference is an important event that brings together experts, educators, and those interested in building reading habits in society. The event will discuss effective methods to encourage people, especially children and adolescents, to love reading books.\n\nMain topics include:\n• The role of family in nurturing reading habits\n• Applying technology in book access\n• Building community libraries\n• Creative reading promotion programs\n\nThe conference brings together more than 250 experts, educators and book lovers from across the country. This is a great opportunity to share experiences, learn from successful models and build cooperation networks in developing reading culture."
   },
@@ -51,6 +80,13 @@ export const newsItems: NewsItem[] = [
     participantsEn: "500+ children supported",
     description: "Khám phá những hoạt động mới nhất trong việc thúc đẩy văn hóa đọc và phát triển ngành xuất bản...",
     descriptionEn: "Discover the latest activities in promoting reading culture and developing the publishing industry...",
+    views: 892,
+    readingTime: 4,
+    status: "completed",
+    featured: true,
+    tags: ["thiện nguyện", "trẻ em", "vùng cao", "sách"],
+    author: "Đội tình nguyện",
+    authorEn: "Volunteer Team",
     detailContent: "Chương trình tặng sách cho trẻ em vùng cao là hoạt động thiện nguyện ý nghĩa nhằm mang tri thức đến với các em nhỏ ở những vùng khó khăn. Chương trình không chỉ trao tặng sách mà còn tổ chức các hoạt động đọc sách cùng nhau, kể chuyện, và hướng dẫn các em cách chăm sóc sách.\n\nNội dung chương trình:\n• Trao tặng 10,000 cuốn sách cho 50 trường học\n• Xây dựng 20 góc đọc sách tại các trường\n• Đào tạo 100 giáo viên về phương pháp khuyến đọc\n• Tổ chức 30 buổi kể chuyện cho trẻ em\n\nĐây là cơ hội để các em tiếp cận với thế giới tri thức rộng lớn, phát triển tư duy sáng tạo và nuôi dưỡng tình yêu học tập. Chương trình cũng trao tặng các thiết bị học tập cần thiết và xây dựng các góc đọc sách tại trường học địa phương.",
     detailContentEn: "The Book Donation Program for Highland Children is a meaningful charitable activity aimed at bringing knowledge to children in difficult areas. The program not only donates books but also organizes reading activities together, storytelling, and guides children on how to take care of books.\n\nProgram content:\n• Donate 10,000 books to 50 schools\n• Build 20 reading corners at schools\n• Train 100 teachers on reading promotion methods\n• Organize 30 storytelling sessions for children\n\nThis is an opportunity for children to access the vast world of knowledge, develop creative thinking and nurture their love of learning. The program also donates necessary learning equipment and builds reading corners at local schools."
   },

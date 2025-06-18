@@ -3,13 +3,18 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, BookOpen, TrendingUp, Calendar } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getAllNews } from "@/lib/newsData"
+import { useNews } from "@/contexts/NewsContext"
 import NewsCard from "@/components/ui/NewsCard"
 import Link from "next/link"
 
 export default function NewsSection() {
   const { t, language } = useLanguage()
-  const newsItems = getAllNews()
+  const { newsItems } = useNews()
+  
+  // Show only the first 6 news items on homepage, sorted by newest first
+  const displayedNews = newsItems
+    .sort((a, b) => b.id - a.id) // Sort by ID descending (newest first)
+    .slice(0, 6)
 
   return (
     <section
@@ -44,7 +49,7 @@ export default function NewsSection() {
 
         {/* Premium News Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {newsItems.map((item) => (
+          {displayedNews.map((item) => (
             <NewsCard key={item.id} item={item} />
           ))}
         </div>

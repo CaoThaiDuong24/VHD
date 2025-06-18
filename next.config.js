@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Temporarily disable static export to allow dynamic params
+  // output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true

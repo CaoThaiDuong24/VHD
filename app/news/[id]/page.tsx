@@ -1,13 +1,7 @@
-import { getNewsById, getAllNews } from '@/lib/newsData'
 import NewsDetailClient from './NewsDetailClient'
 
-// Generate static params for all news items
-export async function generateStaticParams() {
-  const allNews = getAllNews()
-  return allNews.map((news) => ({
-    id: news.id.toString(),
-  }))
-}
+// Since we're using dynamic data from context, we'll handle this dynamically
+export const dynamicParams = true
 
 interface PageProps {
   params: Promise<{ id: string }>

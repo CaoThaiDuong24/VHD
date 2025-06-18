@@ -2,6 +2,10 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { LanguageProvider } from "@/contexts/LanguageContext"
+import { NewsProvider } from "@/contexts/NewsContext"
+import { EventsProvider } from "@/contexts/EventsContext"
+import NewsNotification from "@/components/ui/NewsNotification"
+import ClearStorageButton from "@/components/ui/ClearStorageButton"
 import "./globals.css"
 
 // Load Inter font
@@ -34,7 +38,15 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${inter.variable} ${playfairDisplay.variable}`}>
       <body className="antialiased">
-        <LanguageProvider>{children}</LanguageProvider>
+        <NewsProvider>
+          <EventsProvider>
+            <LanguageProvider>
+              {children}
+              <NewsNotification />
+              {process.env.NODE_ENV === 'development' && <ClearStorageButton />}
+            </LanguageProvider>
+          </EventsProvider>
+        </NewsProvider>
       </body>
     </html>
   )

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getAllNews } from "@/lib/newsData"
+import { useNews } from "@/contexts/NewsContext"
 import { ChevronLeft, ChevronRight, Calendar, Newspaper, BarChart3, Filter, Search, X, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,13 +13,12 @@ import NewsCard from "@/components/ui/NewsCard"
 
 export default function NewsPage() {
   const { language } = useLanguage()
+  const { newsItems } = useNews()
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const itemsPerPage = 4
-
-  const newsItems = getAllNews()
   
   // Get unique categories
   const categories = useMemo(() => {
@@ -29,15 +28,17 @@ export default function NewsPage() {
 
   // Filter news based on search term and category
   const filteredNews = useMemo(() => {
-    return newsItems.filter(item => {
-      const matchesSearch = searchTerm === "" || 
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesCategory = selectedCategory === "" || item.category === selectedCategory
-      
-      return matchesSearch && matchesCategory
-    })
+    return newsItems
+      .filter(item => {
+        const matchesSearch = searchTerm === "" || 
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchTerm.toLowerCase())
+        
+        const matchesCategory = selectedCategory === "" || item.category === selectedCategory
+        
+        return matchesSearch && matchesCategory
+      })
+      .sort((a, b) => b.id - a.id) // Sort by ID descending (newest first)
   }, [newsItems, searchTerm, selectedCategory])
 
   // Reset current page when filters change

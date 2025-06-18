@@ -105,12 +105,12 @@ export default function Header() {
 
               <div className="hidden lg:block">
                 <Link href="/contact">
-                  <Button 
-                    className="btn-primary px-6 py-3 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105"
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Liên hệ ngay
-                  </Button>
+                <Button 
+                  className="btn-primary px-6 py-3 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105"
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Liên hệ ngay
+                </Button>
                 </Link>
               </div>
 
@@ -174,12 +174,12 @@ export default function Header() {
 
               <div className="pt-4">
                 <Link href="/contact" className="w-full">
-                  <Button 
-                    className="w-full btn-primary py-4 rounded-xl font-semibold shadow-elegant"
-                  >
-                    <BookOpen className="mr-2 h-5 w-5" />
-                    Liên hệ với chúng tôi
-                  </Button>
+                <Button 
+                  className="w-full btn-primary py-4 rounded-xl font-semibold shadow-elegant"
+                >
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Liên hệ với chúng tôi
+                </Button>
                 </Link>
               </div>
             </div>

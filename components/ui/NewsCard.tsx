@@ -6,19 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
-
-interface NewsItem {
-  id: number
-  title: string
-  titleEn: string
-  category: string
-  categoryEn: string
-  description: string
-  descriptionEn: string
-  image: string
-  date: string
-  gradient: string
-}
+import { NewsItem } from "@/lib/newsData"
 
 interface NewsCardProps {
   item: NewsItem
@@ -36,14 +24,35 @@ export default function NewsCard({ item }: NewsCardProps) {
   const handleClick = () => {
     // Set navigation source based on current page
     if (typeof window !== 'undefined') {
-      if (pathname === '/news') {
+      // Get current path from multiple sources for reliability
+      const routerPath = pathname
+      const windowPath = window.location.pathname
+      const currentUrl = window.location.href
+      
+      console.log('NewsCard - Router pathname:', routerPath)
+      console.log('NewsCard - Window pathname:', windowPath)
+      console.log('NewsCard - Full URL:', currentUrl)
+      
+      // Improved detection logic - check for exact news page paths
+      const isNewsPage = routerPath === '/news' || 
+                        routerPath === '/news/' ||
+                        windowPath === '/news' || 
+                        windowPath === '/news/' ||
+                        (currentUrl.includes('/news') && (currentUrl.endsWith('/news') || currentUrl.endsWith('/news/')))
+      
+      console.log('NewsCard - Is news page?', isNewsPage)
+      
+      if (isNewsPage) {
+        console.log('NewsCard - Setting navigation source to: news-page')
         sessionStorage.setItem('newsNavigationSource', 'news-page')
-      } else if (pathname === '/') {
-        sessionStorage.setItem('newsNavigationSource', 'homepage')
       } else {
-        // For any other page, default to homepage
+        console.log('NewsCard - Setting navigation source to: homepage')
         sessionStorage.setItem('newsNavigationSource', 'homepage')
       }
+      
+      // Verify what was actually set
+      const stored = sessionStorage.getItem('newsNavigationSource')
+      console.log('NewsCard - Final stored value:', stored)
     }
     
     router.push(`/news/${item.id}`)
@@ -56,11 +65,15 @@ export default function NewsCard({ item }: NewsCardProps) {
     >
       <div className="relative overflow-hidden">
         <Image
-          src={item.image || "/placeholder.svg"}
+          src={(item as any).featuredImage || (item as any).image || item.image || "/placeholder.jpg"}
           alt={title}
           width={400}
           height={250}
           className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/placeholder.jpg';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div className="absolute top-4 right-4">
