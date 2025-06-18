@@ -64,12 +64,18 @@ export function convertWordPressToNewsItem(wpPost: WordPressPost): any {
 
 // WordPress API service class
 export class WordPressService {
-  private baseUrl: string
-  private auth: string
+  protected baseUrl: string
+  protected auth: string
 
   constructor() {
     this.baseUrl = WORDPRESS_API_URL
     this.auth = btoa(`${WORDPRESS_USERNAME}:${WORDPRESS_PASSWORD}`)
+  }
+
+  // Method to set credentials dynamically
+  setCredentials(apiUrl: string, username: string, password: string) {
+    this.baseUrl = apiUrl
+    this.auth = btoa(`${username}:${password}`)
   }
 
   // Get all posts
@@ -329,6 +335,150 @@ export const WordPressUtils = {
 }
 
 // Convert Event to WordPress format
+// Bidirectional sync functions
+export async function syncFromWordPressToLocal(
+  localItems: any[],
+  setLocalItems: (items: any[]) => void,
+  convertFunction: (wpPost: WordPressPost) => any,
+  storageKey: string
+): Promise<{ 
+  added: number,
+  updated: number,
+  errors: string[]
+}> {
+  const errors: string[] = []
+  let added = 0
+  let updated = 0
+
+  try {
+    // Get WordPress settings from localStorage
+    const wpSettings = JSON.parse(localStorage.getItem('wordpressSettings') || '{}')
+    if (!wpSettings.apiUrl || !wpSettings.username || !wpSettings.password) {
+      throw new Error('WordPress settings not configured')
+    }
+
+    // Create service instance with dynamic settings
+    const service = new WordPressService()
+    service.setCredentials(wpSettings.apiUrl, wpSettings.username, wpSettings.password)
+
+    // Fetch all published posts from WordPress
+    const wpPosts = await service.getPosts({
+      status: 'publish',
+      per_page: 100,
+      orderby: 'modified',
+      order: 'desc'
+    })
+
+    // Create a map of existing local items by wpId
+    const localItemsMap = new Map()
+    localItems.forEach(item => {
+      if (item.wpId) {
+        localItemsMap.set(item.wpId, item)
+      }
+    })
+
+    const updatedItems = [...localItems]
+
+    for (const wpPost of wpPosts) {
+      try {
+        const existingItem = localItemsMap.get(wpPost.id)
+        const convertedItem = convertFunction(wpPost)
+        convertedItem.wpId = wpPost.id
+
+        if (existingItem) {
+          // Update existing item if WordPress version is newer
+          const wpModified = new Date(wpPost.modified)
+          const localModified = new Date(existingItem.updatedAt || existingItem.createdAt || 0)
+          
+          if (wpModified > localModified) {
+            const index = updatedItems.findIndex(item => item.wpId === wpPost.id)
+            if (index !== -1) {
+              updatedItems[index] = {
+                ...updatedItems[index],
+                ...convertedItem,
+                id: existingItem.id, // Keep local ID
+                updatedAt: new Date().toISOString()
+              }
+              updated++
+            }
+          }
+        } else {
+          // Add new item
+          const newId = Math.max(...updatedItems.map(item => item.id || 0), 0) + 1
+          updatedItems.unshift({
+            ...convertedItem,
+            id: newId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          })
+          added++
+        }
+      } catch (error) {
+        errors.push(`Error processing post ${wpPost.id}: ${error}`)
+      }
+    }
+
+    // Update local storage and state
+    setLocalItems(updatedItems)
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems))
+
+    return { added, updated, errors }
+  } catch (error) {
+    errors.push(`Sync error: ${error}`)
+    return { added: 0, updated: 0, errors }
+  }
+}
+
+// Enhanced WordPress Service with dynamic credentials
+export class EnhancedWordPressService extends WordPressService {
+  setCredentials(apiUrl: string, username: string, password: string) {
+    this.baseUrl = apiUrl
+    this.auth = btoa(`${username}:${password}`)
+  }
+
+  // Check for new/updated posts since last sync
+  async getUpdatedPosts(since: string): Promise<WordPressPost[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/posts?modified_after=${since}&per_page=100`, {
+        headers: {
+          'Authorization': `Basic ${this.auth}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`WordPress API error: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching updated WordPress posts:', error)
+      throw error
+    }
+  }
+
+  // Get posts by category
+  async getPostsByCategory(categoryId: number): Promise<WordPressPost[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/posts?categories=${categoryId}&per_page=100`, {
+        headers: {
+          'Authorization': `Basic ${this.auth}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`WordPress API error: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching posts by category:', error)
+      throw error
+    }
+  }
+}
+
 export function convertEventToWordPressFormat(event: any): {
   title: string
   content: string

@@ -12,6 +12,8 @@ interface NewsContextType {
   updateNews: (id: number, news: Partial<NewsItem>) => Promise<void>
   deleteNews: (id: number) => void
   syncWithWordPress: () => Promise<void>
+  syncFromWordPress: () => Promise<void>
+  syncBidirectional: () => Promise<void>
   createWordPressPost: (news: NewsItem) => Promise<void>
   updateWordPressPost: (news: NewsItem) => Promise<void>
   deleteWordPressPost: (wpId: number) => Promise<void>
@@ -21,6 +23,8 @@ interface NewsContextType {
   clearStorageData: () => void
   autoSyncEnabled: boolean
   toggleAutoSync: () => void
+  bidirectionalSyncEnabled: boolean
+  toggleBidirectionalSync: () => void
   lastSyncStatus: string
 }
 
@@ -56,6 +60,7 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [wpSyncEnabled, setWpSyncEnabled] = useState(false)
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(false)
+  const [bidirectionalSyncEnabled, setBidirectionalSyncEnabled] = useState(false)
   const [lastSyncStatus, setLastSyncStatus] = useState('')
 
   // Clear corrupted storage data
@@ -64,9 +69,11 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem(STORAGE_KEY)
       localStorage.removeItem('wpSyncEnabled')
       localStorage.removeItem('autoSyncEnabled')
+      localStorage.removeItem('bidirectionalSyncEnabled')
       setNewsItems(newsItems)
       setWpSyncEnabled(false)
       setAutoSyncEnabled(false)
+      setBidirectionalSyncEnabled(false)
       console.log('✅ Storage data cleared successfully')
     } catch (error) {
       console.error('Error clearing storage data:', error)
@@ -80,6 +87,7 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
         const storedNews = localStorage.getItem(STORAGE_KEY)
         const wpSyncSetting = localStorage.getItem('wpSyncEnabled')
         const autoSyncSetting = localStorage.getItem('autoSyncEnabled')
+        const bidirectionalSyncSetting = localStorage.getItem('bidirectionalSyncEnabled')
         
         // Handle WordPress sync setting
         if (wpSyncSetting) {
@@ -94,6 +102,14 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
           const autoSync = safeJSONParse(autoSyncSetting, false)
           if (typeof autoSync === 'boolean') {
             setAutoSyncEnabled(autoSync)
+          }
+        }
+        
+        // Handle bidirectional sync setting
+        if (bidirectionalSyncSetting) {
+          const bidirectionalSync = safeJSONParse(bidirectionalSyncSetting, false)
+          if (typeof bidirectionalSync === 'boolean') {
+            setBidirectionalSyncEnabled(bidirectionalSync)
           }
         }
         
@@ -323,6 +339,75 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
   }
 
   // WordPress integration functions
+  // Bidirectional sync from WordPress to Local
+  const syncFromWordPress = async () => {
+    if (!wpSyncEnabled) {
+      setLastSyncStatus('❌ Đồng bộ WordPress chưa được kích hoạt')
+      return
+    }
+
+    setIsLoading(true)
+    setLastSyncStatus('🔄 Đang tải dữ liệu từ WordPress...')
+    
+    try {
+      const service = new WordPressService()
+      const posts = await service.getPosts()
+      console.log('📥 Fetched posts from WordPress:', posts.length)
+      
+      // Convert WordPress posts to NewsItems
+      const convertedNews: NewsItem[] = posts.map((post: any) => {
+        const existingNews = newsItemsState.find(news => news.wpId === post.id)
+        const newId = existingNews?.id || Math.max(...newsItemsState.map(item => item.id), 0) + Date.now()
+        
+        return {
+          id: newId,
+          wpId: post.id,
+          title: post.title.rendered,
+          titleEn: post.title.rendered,
+          description: post.excerpt.rendered.replace(/<[^>]*>/g, '').slice(0, 200),
+          descriptionEn: post.excerpt.rendered.replace(/<[^>]*>/g, '').slice(0, 200),
+          image: post.featured_media_url || '/placeholder.svg',
+          date: new Date(post.date).toLocaleDateString('vi-VN'),
+          category: 'Tin tức',
+          categoryEn: 'News',
+          views: existingNews?.views || 0,
+          readingTime: Math.ceil(post.content.rendered.length / 1000) || 5,
+          author: 'WordPress',
+          authorEn: 'WordPress',
+          status: post.status === 'publish' ? 'published' as const : 'draft' as const,
+          featured: false,
+          tags: [],
+          location: '',
+          locationEn: '',
+          participants: '',
+          participantsEn: '',
+          detailContent: post.content.rendered,
+          detailContentEn: post.content.rendered,
+          gradient: 'from-blue-500 to-purple-600'
+        }
+      })
+      
+      // Merge with existing news (WordPress posts take precedence)
+      const mergedNews = [...convertedNews]
+      newsItemsState.forEach(news => {
+        if (!news.wpId && !mergedNews.find(wp => wp.title === news.title)) {
+          mergedNews.push(news)
+        }
+      })
+      
+      setNewsItems(mergedNews)
+      setLastSyncStatus(`✅ Đã đồng bộ ${convertedNews.length} tin tức từ WordPress`)
+      setTimeout(() => setLastSyncStatus(''), 3000)
+      
+    } catch (error) {
+      console.error('Error syncing from WordPress:', error)
+      setLastSyncStatus('❌ Lỗi đồng bộ từ WordPress: ' + (error as Error).message)
+      setTimeout(() => setLastSyncStatus(''), 5000)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const syncWithWordPress = async () => {
     if (!wpSyncEnabled) return
     setIsLoading(true)
@@ -335,6 +420,34 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('WordPress sync failed:', error)
       setLastSyncStatus('❌ Lỗi đồng bộ: ' + (error as Error).message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const syncBidirectional = async () => {
+    if (!bidirectionalSyncEnabled) {
+      setLastSyncStatus('❌ Đồng bộ 2 chiều chưa được kích hoạt')
+      return
+    }
+
+    setIsLoading(true)
+    setLastSyncStatus('🔄 Đang đồng bộ 2 chiều với WordPress...')
+    
+    try {
+      // First sync from WordPress
+      await syncFromWordPress()
+      
+      // Then sync to WordPress
+      await syncWithWordPress()
+      
+      setLastSyncStatus('✅ Đồng bộ 2 chiều hoàn tất')
+      setTimeout(() => setLastSyncStatus(''), 3000)
+      
+    } catch (error) {
+      console.error('Error in bidirectional sync:', error)
+      setLastSyncStatus('❌ Lỗi đồng bộ 2 chiều: ' + (error as Error).message)
+      setTimeout(() => setLastSyncStatus(''), 5000)
     } finally {
       setIsLoading(false)
     }
@@ -406,6 +519,12 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('autoSyncEnabled', JSON.stringify(newAutoSyncEnabled))
   }
 
+  const toggleBidirectionalSync = () => {
+    setBidirectionalSyncEnabled(!bidirectionalSyncEnabled)
+    localStorage.setItem('bidirectionalSyncEnabled', JSON.stringify(!bidirectionalSyncEnabled))
+    console.log(bidirectionalSyncEnabled ? '❌ Đã tắt đồng bộ 2 chiều' : '✅ Đã bật đồng bộ 2 chiều')
+  }
+
   const value: NewsContextType = {
     newsItems: newsItemsState,
     getNewsById,
@@ -413,6 +532,8 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     updateNews,
     deleteNews,
     syncWithWordPress,
+    syncFromWordPress,
+    syncBidirectional,
     createWordPressPost,
     updateWordPressPost,
     deleteWordPressPost,
@@ -422,6 +543,8 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     clearStorageData,
     autoSyncEnabled,
     toggleAutoSync,
+    bidirectionalSyncEnabled,
+    toggleBidirectionalSync,
     lastSyncStatus
   }
 

@@ -113,10 +113,17 @@ export default function AdminEventsPage() {
 
   // Filter events based on search and filters
   const filteredEvents = eventsArray.filter((event) => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (event.titleEn && event.titleEn.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (event.descriptionEn && event.descriptionEn.toLowerCase().includes(searchTerm.toLowerCase()))
+    if (!event || typeof event !== 'object') return false
+    
+    const title = event.title || ''
+    const titleEn = event.titleEn || ''
+    const description = event.description || ''
+    const descriptionEn = event.descriptionEn || ''
+    
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         titleEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         descriptionEn.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || event.status === statusFilter
     const matchesCategory = categoryFilter === 'all' || 
                            event.category === categoryFilter || 
