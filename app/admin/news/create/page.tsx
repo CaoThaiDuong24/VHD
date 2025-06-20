@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -96,6 +96,41 @@ export default function CreateNewsPage() {
     author: 'Ban Tổ chức',
     authorEn: 'Organizing Committee'
   })
+
+  // 🚀 AUTO ENABLE SYNC SETTINGS ON PAGE LOAD
+  useEffect(() => {
+    console.log('🔧 Auto-enabling WordPress sync settings for news creation...')
+    
+    // Check current settings
+    const currentWpSync = localStorage.getItem('wpSyncEnabled')
+    const currentAutoSync = localStorage.getItem('autoSyncEnabled')
+    const currentBidirectional = localStorage.getItem('bidirectionalSyncEnabled')
+    
+    let settingsChanged = false
+    
+    // Auto enable if not already set
+    if (currentWpSync !== 'true') {
+      localStorage.setItem('wpSyncEnabled', 'true')
+      console.log('✅ wpSyncEnabled set to true')
+      settingsChanged = true
+    }
+    
+    if (currentAutoSync !== 'true') {
+      localStorage.setItem('autoSyncEnabled', 'true')
+      console.log('✅ autoSyncEnabled set to true')
+      settingsChanged = true
+    }
+    
+    if (currentBidirectional !== 'true') {
+      localStorage.setItem('bidirectionalSyncEnabled', 'true')
+      console.log('✅ bidirectionalSyncEnabled set to true')
+      settingsChanged = true
+    }
+    
+    if (settingsChanged) {
+      console.log('🎉 WordPress auto sync đã được kích hoạt tự động cho trang tạo tin tức!')
+    }
+  }, [])
 
   const gradientOptions = [
     { value: 'from-primary to-emerald-500', label: 'Xanh lá', preview: 'bg-gradient-to-r from-primary to-emerald-500' },
@@ -235,6 +270,18 @@ export default function CreateNewsPage() {
     setIsSubmitting(true)
 
     try {
+      // 🚀 ENSURE AUTO SYNC SETTINGS ARE ENABLED
+      console.log('🔧 Ensuring WordPress auto sync settings are enabled...')
+      localStorage.setItem('wpSyncEnabled', 'true')
+      localStorage.setItem('autoSyncEnabled', 'true')
+      localStorage.setItem('bidirectionalSyncEnabled', 'true')
+      
+      console.log('✅ Auto sync settings confirmed:', {
+        wpSyncEnabled: localStorage.getItem('wpSyncEnabled'),
+        autoSyncEnabled: localStorage.getItem('autoSyncEnabled'),
+        bidirectionalSyncEnabled: localStorage.getItem('bidirectionalSyncEnabled')
+      })
+
       // Add news to global state with auto WordPress sync
       const newNews = await addNews({
         title: formData.title,
@@ -264,6 +311,43 @@ export default function CreateNewsPage() {
       })
       
       console.log('✅ Tin tức đã được lưu thành công!', newNews.wpId ? `(WordPress ID: ${newNews.wpId})` : '')
+
+      // 🎯 EXPLICIT WORDPRESS SYNC CALL (Backup if auto sync fails)
+      if (!newNews.wpId) {
+        console.log('🔄 Auto sync may not have worked, trying explicit WordPress sync...')
+        try {
+          // Direct call to WordPress API
+          const wordpressResponse = await fetch('/api/sync/wordpress', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'create',
+              data: {
+                ...newNews,
+                // Ensure status is correctly formatted for WordPress
+                status: formData.status === 'published' || formData.status === 'completed' ? 'publish' : 'draft'
+              }
+            })
+          })
+
+          if (wordpressResponse.ok) {
+            const wpResult = await wordpressResponse.json()
+            console.log('🎉 Explicit WordPress sync successful:', wpResult)
+            if (wpResult.success && wpResult.wpPost?.id) {
+              console.log(`✅ WordPress Post created with ID: ${wpResult.wpPost.id}`)
+              console.log(`🔗 WordPress Admin: http://vhdcom.local/wp-admin/edit.php`)
+            }
+          } else {
+            const errorText = await wordpressResponse.text()
+            console.error('❌ Explicit WordPress sync failed:', errorText)
+          }
+        } catch (wpError) {
+          console.error('❌ WordPress sync error:', wpError)
+        }
+      }
+      
       setShowSuccessToast(true)
       
       setTimeout(() => {
@@ -609,16 +693,30 @@ export default function CreateNewsPage() {
           <Button 
             type="submit" 
             form="news-form"
-            className="bg-primary hover:bg-primary/90"
+            className={`transition-all duration-200 ${
+              wpSyncEnabled && autoSyncEnabled 
+                ? 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl' 
+                : 'bg-primary hover:bg-primary/90'
+            }`}
             disabled={isSubmitting}
+            size="lg"
           >
             {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2"></div>
-                Đang lưu...
-              </>
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                Đang lưu tin tức...
+                {wpSyncEnabled && autoSyncEnabled && (
+                  <span className="hidden sm:inline text-blue-100">+ Đồng bộ WordPress</span>
+                )}
+              </span>
             ) : (
-              'Xuất bản'
+              <span className="flex items-center gap-2">
+                <Save className="w-4 h-4" />
+                {formData.status === 'published' ? 'Xuất bản' : 'Lưu tin tức'}
+                {wpSyncEnabled && autoSyncEnabled && (
+                  <Cloud className="w-4 h-4 hidden sm:inline" />
+                )}
+              </span>
             )}
           </Button>
         </div>
@@ -961,6 +1059,59 @@ export default function CreateNewsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* WordPress Sync Status */}
+            {wpSyncEnabled && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Cloud className="w-5 h-5 text-blue-600" />
+                    Trạng thái đồng bộ WordPress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {wpSyncEnabled ? (
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                          <CloudOff className="w-5 h-5 text-gray-600" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Đồng bộ WordPress: {wpSyncEnabled ? 'Đã bật' : 'Đã tắt'}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {autoSyncEnabled ? 'Tự động đồng bộ khi lưu' : 'Đồng bộ thủ công'}
+                        </p>
+                      </div>
+                    </div>
+                    {autoSyncEnabled && (
+                      <Zap className="w-5 h-5 text-blue-600" />
+                    )}
+                  </div>
+                  
+                  {lastSyncStatus && (
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-800 font-medium mb-1">
+                        Trạng thái đồng bộ gần nhất:
+                      </p>
+                      <p className="text-sm text-blue-700">{lastSyncStatus}</p>
+                    </div>
+                  )}
+
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>✅ Tin tức sẽ được lưu trữ an toàn trên WordPress</p>
+                    <p>✅ Dữ liệu được chuyển đổi thành format HTML đẹp</p>
+                    <p>✅ Bao gồm ảnh đại diện và thư viện ảnh</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Additional Settings */}
             <Card>

@@ -65,7 +65,7 @@ export default function ModernHeader() {
               <div className="relative bg-white p-1.5 sm:p-2 lg:p-3 rounded-xl sm:rounded-2xl shadow-elegant group-hover:shadow-luxury transition-all duration-500 group-hover:scale-105 border border-gray-100/50">
                 <Image
                   src="/images/rcp-logo.png"
-                  alt="RCP Logo"
+                  alt={t("brand.logo.alt")}
                   width={28}
                   height={28}
                   className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain"
@@ -89,14 +89,7 @@ export default function ModernHeader() {
               {/* Subtitle - Mobile Optimized */}
               <div className="h-5 sm:h-6 lg:h-10 flex items-center">
                 <div
-                  className={`
-                    text-gray-600 font-medium tracking-wide leading-tight
-                    w-full
-                    ${language === "en" 
-                      ? "text-xs sm:text-xs lg:text-sm overflow-hidden text-ellipsis whitespace-nowrap" 
-                      : "text-xs sm:text-xs lg:text-sm break-words"
-                    }
-                  `}
+                  className="text-gray-600 font-medium tracking-wide leading-tight text-xs sm:text-xs lg:text-sm w-full break-words"
                   title={t("header.brand.subtitle")}
                 >
                   {t("header.brand.subtitle")}
@@ -236,7 +229,7 @@ export default function ModernHeader() {
               <div className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-lg">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                 <span className="text-xs sm:text-sm text-gray-600">
-                  {language === 'vi' ? 'Hiện tại:' : 'Current:'} 
+                  {t("language.current")} 
                   <span className="text-primary font-medium ml-1">
                     {menuItems.find(item => isActiveRoute(item.href))?.label || t("nav.home")}
                   </span>

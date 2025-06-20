@@ -12,7 +12,7 @@ import Footer from "@/components/layout/Footer"
 import NewsCard from "@/components/ui/NewsCard"
 
 export default function NewsPage() {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const { newsItems } = useNews()
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
@@ -74,27 +74,27 @@ export default function NewsPage() {
             <div className="text-center">
               <div className="inline-flex items-center px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-6">
                 <Newspaper className="w-4 h-4 mr-2" />
-                {language === 'vi' ? 'Tin tức & Sự kiện' : 'News & Events'}
+                {t("news.events.title")}
               </div>
               <h1 className="font-display mb-6">
                 {/* Main Title */}
                 <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-gray-900 leading-tight mb-2 lg:mb-4">
                   <span className="block">
-                    {language === 'vi' ? 'Khám phá những' : 'Discover the'}
+                    {t("news.discover")}
                   </span>
                 </div>
 
                 {/* Highlight */}
                 <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight mb-2 lg:mb-4">
                   <span className="gradient-text-primary font-bold">
-                    {language === 'vi' ? 'Tin tức mới nhất' : 'Latest News'}
+                    {t("news.latest.title")}
                   </span>
                 </div>
 
                 {/* Sub Title */}
                 <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-gray-800 leading-tight">
                   <span className="block">
-                    {language === 'vi' ? 'Văn hóa đọc' : 'Reading Culture'}
+                    {t("news.reading.culture")}
                   </span>
                 </div>
               </h1>
@@ -106,10 +106,7 @@ export default function NewsPage() {
                 <div className="w-8 lg:w-12 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"></div>
               </div>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                {language === 'vi' 
-                  ? 'Cập nhật những thông tin mới nhất về hoạt động phát triển văn hóa đọc, sự kiện và chương trình của trung tâm'
-                  : 'Stay updated with the latest information about reading culture development activities, events and center programs'
-                }
+                {t("news.stay.updated")}
               </p>
             </div>
           </div>
@@ -191,13 +188,10 @@ export default function NewsPage() {
                       <Newspaper className="w-10 h-10 text-gray-400" />
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      {language === 'vi' ? 'Không tìm thấy tin tức' : 'No news found'}
+                      {t("news.no.found")}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      {language === 'vi' 
-                        ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc'
-                        : 'Try changing your search terms or filters'
-                      }
+                      {t("news.try.change")}
                     </p>
                     {activeFiltersCount > 0 && (
                       <Button
@@ -205,7 +199,7 @@ export default function NewsPage() {
                         onClick={resetFilters}
                         className="rounded-lg"
                       >
-                        {language === 'vi' ? 'Xóa bộ lọc' : 'Clear filters'}
+                        {t("news.clear.filters")}
                       </Button>
                     )}
                   </div>
@@ -219,19 +213,19 @@ export default function NewsPage() {
                   <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                       <Search className="w-5 h-5 mr-2 text-primary" />
-                      {language === 'vi' ? 'Tìm kiếm & Lọc' : 'Search & Filter'}
+                      {t("news.search.filter")}
                     </h3>
                     
                     {/* Search Input */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Từ khóa' : 'Keywords'}
+                        {t("news.keywords")}
                       </label>
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
                           type="text"
-                          placeholder={language === 'vi' ? 'Nhập từ khóa...' : 'Enter keywords...'}
+                          placeholder={t("news.enter.keywords")}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="pl-10 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20"
@@ -242,7 +236,7 @@ export default function NewsPage() {
                     {/* Category Filter */}
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Danh mục' : 'Category'}
+                        {t("news.category")}
                       </label>
                       <div className="relative">
                         <button
@@ -252,7 +246,7 @@ export default function NewsPage() {
                           <div className="flex items-center">
                             <Filter className="h-4 w-4 text-gray-400 mr-2" />
                             <span className="text-gray-700 text-sm truncate">
-                              {selectedCategory || (language === 'vi' ? 'Tất cả danh mục' : 'All categories')}
+                              {selectedCategory || t("news.all.categories")}
                             </span>
                           </div>
                           <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
@@ -269,7 +263,7 @@ export default function NewsPage() {
                                 }}
                                 className="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors text-sm text-gray-700"
                               >
-                                {language === 'vi' ? 'Tất cả danh mục' : 'All categories'}
+                                {t("news.all.categories")}
                               </button>
                               {categories.map((category) => (
                                 <button
@@ -297,7 +291,7 @@ export default function NewsPage() {
                         className="w-full rounded-lg border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300"
                       >
                         <X className="w-4 h-4 mr-2" />
-                        {language === 'vi' ? 'Xóa bộ lọc' : 'Clear filters'}
+                        {t("news.clear.filters")}
                       </Button>
                     )}
                   </div>
@@ -306,27 +300,27 @@ export default function NewsPage() {
                   <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                       <BarChart3 className="w-5 h-5 mr-2 text-primary" />
-                      {language === 'vi' ? 'Kết quả' : 'Results'}
+                      {t("news.results")}
                     </h3>
                     
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">
-                          {language === 'vi' ? 'Tổng số bài viết:' : 'Total articles:'}
+                          {t("news.total.articles")}
                         </span>
                         <span className="font-semibold text-primary">{filteredNews.length}</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">
-                          {language === 'vi' ? 'Trang hiện tại:' : 'Current page:'}
+                          {t("news.current.page")}
                         </span>
                         <span className="font-semibold text-gray-900">{currentPage} / {totalPages || 1}</span>
                       </div>
                       
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">
-                          {language === 'vi' ? 'Danh mục:' : 'Categories:'}
+                          {t("news.categories")}
                         </span>
                         <span className="font-semibold text-gray-900">{categories.length}</span>
                       </div>
@@ -336,7 +330,7 @@ export default function NewsPage() {
                     {activeFiltersCount > 0 && (
                       <div className="mt-4 pt-4 border-t border-gray-100">
                         <div className="text-sm text-gray-600 mb-2">
-                          {language === 'vi' ? 'Bộ lọc đang áp dụng:' : 'Active filters:'}
+                          {t("news.active.filters")}
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {searchTerm && (
@@ -379,7 +373,7 @@ export default function NewsPage() {
                         <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
                           <BarChart3 className="w-4 h-4 text-primary" />
                         </div>
-                        {language === 'vi' ? 'Thống kê nhanh' : 'Quick Stats'}
+                        {t("news.quick.stats")}
                       </h3>
                       
                       <div className="space-y-4">
@@ -392,10 +386,10 @@ export default function NewsPage() {
                               </div>
                               <div>
                                 <div className="text-sm font-medium text-gray-700">
-                                  {language === 'vi' ? 'Tổng bài viết' : 'Total Articles'}
+                                  {t("news.total.articles.label")}
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                  {language === 'vi' ? 'Tất cả tin tức' : 'All news'}
+                                  {t("news.all.news")}
                                 </div>
                               </div>
                             </div>
@@ -412,10 +406,10 @@ export default function NewsPage() {
                               </div>
                               <div>
                                 <div className="text-sm font-medium text-gray-700">
-                                  {language === 'vi' ? 'Danh mục' : 'Categories'}
+                                  {t("news.categories")}
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                  {language === 'vi' ? 'Phân loại tin' : 'News types'}
+                                  {t("news.types")}
                                 </div>
                               </div>
                             </div>
@@ -432,10 +426,10 @@ export default function NewsPage() {
                               </div>
                               <div>
                                 <div className="text-sm font-medium text-gray-700">
-                                  {language === 'vi' ? 'Trang hiện tại' : 'Current Page'}
+                                  {t("news.page.current")}
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                  {language === 'vi' ? 'Vị trí hiện tại' : 'Current position'}
+                                  {t("news.position.current")}
                                 </div>
                               </div>
                             </div>

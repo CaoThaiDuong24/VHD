@@ -28,6 +28,8 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { useNews } from '@/contexts/NewsContext'
 import { useEvents } from '@/contexts/EventsContext'
+import AutoSyncManager from '@/components/ui/AutoSyncManager'
+import DataImportManager from '@/components/ui/DataImportManager'
 
 interface WordPressSettings {
   apiUrl: string
@@ -50,8 +52,12 @@ export default function WordPressSettingsPage() {
     toggleWordPressSync, 
     autoSyncEnabled, 
     toggleAutoSync, 
+    bidirectionalSyncEnabled,
+    toggleBidirectionalSync,
     lastSyncStatus,
     syncWithWordPress,
+    syncFromWordPress,
+    syncBidirectional,
     isLoading: isSyncing
   } = useNews()
   
@@ -87,7 +93,67 @@ export default function WordPressSettingsPage() {
         console.error('Error loading WordPress settings:', error)
       }
     }
+
+    // 🚀 AUTO ENABLE SYNC SETTINGS - FIX FOR AUTO SYNC ISSUE
+    console.log('🔧 Auto-enabling WordPress sync settings...')
+    
+    // Check current settings
+    const currentWpSync = localStorage.getItem('wpSyncEnabled')
+    const currentAutoSync = localStorage.getItem('autoSyncEnabled')
+    const currentBidirectional = localStorage.getItem('bidirectionalSyncEnabled')
+    
+    // Auto enable if not already set
+    if (currentWpSync !== 'true') {
+      localStorage.setItem('wpSyncEnabled', 'true')
+      console.log('✅ wpSyncEnabled set to true')
+    }
+    
+    if (currentAutoSync !== 'true') {
+      localStorage.setItem('autoSyncEnabled', 'true')
+      console.log('✅ autoSyncEnabled set to true')
+    }
+    
+    if (currentBidirectional !== 'true') {
+      localStorage.setItem('bidirectionalSyncEnabled', 'true')
+      console.log('✅ bidirectionalSyncEnabled set to true')
+    }
+    
+    // Show confirmation
+    if (currentWpSync !== 'true' || currentAutoSync !== 'true' || currentBidirectional !== 'true') {
+      console.log('🎉 WordPress auto sync đã được kích hoạt tự động!')
+      setTimeout(() => {
+        toast({
+          title: "🚀 Auto Sync Activated",
+          description: "WordPress auto sync đã được kích hoạt tự động. Bây giờ bạn có thể tạo news và sẽ tự động sync với WordPress!",
+        })
+      }, 1000)
+    }
   }, [])
+
+  // Keyboard shortcut for saving settings (Ctrl+S)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault()
+        if (!isLoading && settings.apiUrl.trim() && settings.username.trim() && settings.password.trim()) {
+          handleSaveSettings()
+          toast({
+            title: "Phím tắt",
+            description: "Đã lưu cài đặt bằng Ctrl+S",
+          })
+        } else {
+          toast({
+            title: "Không thể lưu",
+            description: "Vui lòng điền đầy đủ thông tin trước khi lưu",
+            variant: "destructive",
+          })
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isLoading, settings])
 
   const validateApiUrl = (url: string): boolean => {
     try {
@@ -116,26 +182,110 @@ export default function WordPressSettingsPage() {
     return url
   }
 
-  const handleSaveSettings = () => {
+  const handleSaveSettings = async () => {
     setIsLoading(true)
+    
     try {
+      // Validation
+      if (!settings.apiUrl.trim()) {
+        toast({
+          title: "Lỗi",
+          description: "Vui lòng nhập URL WordPress",
+          variant: "destructive",
+        })
+        return
+      }
+
+      if (!settings.username.trim()) {
+        toast({
+          title: "Lỗi", 
+          description: "Vui lòng nhập tên đăng nhập",
+          variant: "destructive",
+        })
+        return
+      }
+
+      if (!settings.password.trim()) {
+        toast({
+          title: "Lỗi",
+          description: "Vui lòng nhập Application Password",
+          variant: "destructive",
+        })
+        return
+      }
+
       // Normalize API URL before saving
       const normalizedSettings = {
         ...settings,
-        apiUrl: normalizeApiUrl(settings.apiUrl)
+        apiUrl: normalizeApiUrl(settings.apiUrl.trim()),
+        username: settings.username.trim(),
+        password: settings.password.trim()
       }
       
+      // Test connection before saving (optional but recommended)
+      if (settings.enabled) {
+        toast({
+          title: "Đang kiểm tra...",
+          description: "Đang xác thực kết nối WordPress...",
+        })
+
+        try {
+          const testResponse = await fetch(`${normalizedSettings.apiUrl}/posts?per_page=1`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Basic ${btoa(`${normalizedSettings.username}:${normalizedSettings.password}`)}`,
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (!testResponse.ok) {
+            const errorText = await testResponse.text()
+            toast({
+              title: "Cảnh báo",
+              description: `Không thể kết nối WordPress (${testResponse.status}), nhưng settings đã được lưu. Vui lòng kiểm tra lại.`,
+              variant: "destructive",
+            })
+            console.warn('WordPress connection test failed:', errorText)
+          }
+        } catch (connectionError) {
+          toast({
+            title: "Cảnh báo", 
+            description: "Không thể xác thực kết nối, nhưng settings đã được lưu. Vui lòng kiểm tra kết nối.",
+            variant: "destructive",
+          })
+          console.warn('WordPress connection test error:', connectionError)
+        }
+      }
+
+      // Save to localStorage
       localStorage.setItem('wordpressSettings', JSON.stringify(normalizedSettings))
       setSettings(normalizedSettings)
       
+      // Update WordPress sync status if enabled
+      if (normalizedSettings.enabled && wpSyncEnabled !== true) {
+        toggleWordPressSync()
+      } else if (!normalizedSettings.enabled && wpSyncEnabled !== false) {
+        toggleWordPressSync()
+      }
+      
       toast({
         title: "Thành công",
-        description: "Cài đặt WordPress đã được lưu",
+        description: `Cài đặt WordPress đã được lưu ${normalizedSettings.enabled ? 'và kích hoạt' : ''}`,
       })
+
+      // Log settings for debugging
+      console.log('✅ WordPress settings saved:', {
+        apiUrl: normalizedSettings.apiUrl,
+        username: normalizedSettings.username,
+        enabled: normalizedSettings.enabled,
+        passwordLength: normalizedSettings.password.length
+      })
+      
     } catch (error) {
+      console.error('Error saving WordPress settings:', error)
       toast({
         title: "Lỗi",
-        description: "Không thể lưu cài đặt",
+        description: `Không thể lưu cài đặt: ${(error as Error).message}`,
         variant: "destructive",
       })
     } finally {
@@ -558,16 +708,65 @@ export default function WordPressSettingsPage() {
             </div>
           )}
 
-          {/* Manual Sync Button */}
-          <div className="flex gap-4">
+          {/* Bidirectional Sync Toggle */}
+          <Separator />
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-base font-medium">Đồng bộ 2 chiều</Label>
+              <p className="text-sm text-gray-600">
+                Đồng bộ dữ liệu từ WordPress về hệ thống và ngược lại
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {bidirectionalSyncEnabled ? (
+                <Badge variant="outline" className="text-purple-600 border-purple-600">
+                  <RefreshCw className="w-4 h-4 mr-1" />
+                  2 chiều
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-gray-600 border-gray-600">
+                  1 chiều
+                </Badge>
+              )}
+              <Switch
+                checked={bidirectionalSyncEnabled}
+                onCheckedChange={toggleBidirectionalSync}
+                disabled={!wpSyncEnabled}
+              />
+            </div>
+          </div>
+
+          {/* Manual Sync Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
               onClick={syncWithWordPress}
               disabled={!wpSyncEnabled || isSyncing}
               variant="outline"
               className="flex-1"
             >
+              <Cloud className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Đang đồng bộ...' : 'Lên WordPress'}
+            </Button>
+            
+            <Button
+              onClick={syncFromWordPress}
+              disabled={!wpSyncEnabled || isSyncing}
+              variant="outline"
+              className="flex-1"
+            >
               <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ thủ công'}
+              {isSyncing ? 'Đang tải...' : 'Từ WordPress'}
+            </Button>
+            
+            <Button
+              onClick={syncBidirectional}
+              disabled={!bidirectionalSyncEnabled || isSyncing}
+              variant="default"
+              className="flex-1"
+            >
+              <Zap className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ 2 chiều'}
             </Button>
           </div>
 
@@ -578,15 +777,35 @@ export default function WordPressSettingsPage() {
               <div className="text-sm text-blue-800">
                 <p className="font-medium mb-1">Cách hoạt động của tự động đồng bộ tin tức:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>Khi tạo tin tức mới → Tự động tạo bài viết WordPress</li>
+                  <li>Khi tạo tin tức mới → Tự động lưu lên WordPress</li>
                   <li>Khi cập nhật tin tức → Tự động cập nhật bài viết WordPress</li>
                   <li>Khi xóa tin tức → Tự động xóa bài viết WordPress</li>
-                  <li>Tin tức sẽ được chuyển đổi thành HTML có định dạng</li>
-                  <li>Bao gồm ảnh đại diện, thư viện ảnh và metadata</li>
+                  <li>Tin tức sẽ được chuyển đổi thành HTML có định dạng đẹp</li>
+                  <li>Bao gồm ảnh đại diện, thư viện ảnh và metadata đầy đủ</li>
+                  <li>Dữ liệu được lưu trữ an toàn trên WordPress database</li>
                 </ul>
               </div>
             </div>
           </div>
+          
+          {/* Bidirectional Sync Info */}
+          {bidirectionalSyncEnabled && (
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="flex items-start gap-2">
+                <RefreshCw className="w-5 h-5 text-purple-600 mt-0.5" />
+                <div className="text-sm text-purple-800">
+                  <p className="font-medium mb-1">Đồng bộ 2 chiều được kích hoạt:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Tự động tải tin tức mới từ WordPress về hệ thống</li>
+                    <li>Đồng bộ thay đổi trong cả 2 hướng</li>
+                    <li>WordPress trở thành nguồn dữ liệu chính (primary source)</li>
+                    <li>Dữ liệu được lưu trữ bền vững trên WordPress</li>
+                    <li>Conflict resolution: WordPress data ưu tiên</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -701,6 +920,48 @@ export default function WordPressSettingsPage() {
         </CardContent>
       </Card>
 
+      {/* Form Validation Status */}
+      <Card className="border-l-4 border-l-emerald-500">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${
+                settings.apiUrl.trim() && settings.username.trim() && settings.password.trim()
+                  ? 'bg-emerald-500' 
+                  : 'bg-gray-300'
+              }`}></div>
+              <span className="font-medium text-gray-900">
+                Trạng thái form: {
+                  settings.apiUrl.trim() && settings.username.trim() && settings.password.trim()
+                    ? 'Sẵn sàng lưu' 
+                    : 'Chưa đầy đủ thông tin'
+                }
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className={`flex items-center gap-1 text-sm ${
+                settings.apiUrl.trim() ? 'text-emerald-600' : 'text-gray-400'
+              }`}>
+                <CheckCircle className="w-4 h-4" />
+                URL
+              </div>
+              <div className={`flex items-center gap-1 text-sm ${
+                settings.username.trim() ? 'text-emerald-600' : 'text-gray-400'
+              }`}>
+                <CheckCircle className="w-4 h-4" />
+                Username
+              </div>
+              <div className={`flex items-center gap-1 text-sm ${
+                settings.password.trim() ? 'text-emerald-600' : 'text-gray-400'
+              }`}>
+                <CheckCircle className="w-4 h-4" />
+                Password
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Actions */}
       <div className="flex flex-wrap gap-4">
         <Button
@@ -712,14 +973,41 @@ export default function WordPressSettingsPage() {
           {isTestingConnection ? 'Đang kiểm tra...' : 'Kiểm tra kết nối'}
         </Button>
 
-        <Button
-          onClick={handleSaveSettings}
-          disabled={isLoading}
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          {isLoading ? 'Đang lưu...' : 'Lưu cài đặt'}
-        </Button>
+        <div className="relative group">
+          <Button
+            onClick={handleSaveSettings}
+            disabled={isLoading || !settings.apiUrl.trim() || !settings.username.trim() || !settings.password.trim()}
+            className={`${
+              !settings.apiUrl.trim() || !settings.username.trim() || !settings.password.trim()
+                ? 'bg-gray-400 hover:bg-gray-500 cursor-not-allowed'
+                : 'bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-xl'
+            } transition-all duration-200 relative`}
+            size="lg"
+          >
+            <Save className={`w-4 h-4 mr-2 ${isLoading ? 'animate-pulse' : ''}`} />
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Đang lưu cài đặt...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                Lưu cài đặt
+                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-white/20 text-xs font-mono bg-white/10 rounded">
+                  Ctrl+S
+                </kbd>
+              </span>
+            )}
+          </Button>
+          
+          {/* Tooltip for disabled state */}
+          {(!settings.apiUrl.trim() || !settings.username.trim() || !settings.password.trim()) && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+              Vui lòng điền đầy đủ thông tin để lưu cài đặt
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+            </div>
+          )}
+        </div>
 
         <Button
           variant="destructive"
@@ -848,6 +1136,35 @@ add_action('rest_api_init', function() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Auto-Sync Manager Section */}
+      <Card className="border-blue-200 bg-blue-50/50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-blue-800">
+            <Zap className="h-5 w-5" />
+            <span>Auto-Sync Manager</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AutoSyncManager />
+        </CardContent>
+      </Card>
+
+      {/* Data Import Manager Section */}
+      <Card className="border-green-200 bg-green-50/50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-green-800">
+            <Activity className="h-5 w-5" />
+            <span>Data Import Manager</span>
+            <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+              Beta
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataImportManager />
         </CardContent>
       </Card>
     </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, Trash2, RefreshCw } from 'lucide-react'
+import { Trash2, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 
@@ -54,7 +54,7 @@ export default function ClearStorageButton({
               // Try to parse to see if it's valid JSON
               JSON.parse(value)
             }
-          } catch (parseError) {
+          } catch {
             console.warn(`Found corrupted data for key: ${key}, removing...`)
             localStorage.removeItem(key)
           }

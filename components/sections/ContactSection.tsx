@@ -8,7 +8,7 @@ import { MapPin, Mail, Phone, Clock, Navigation, Send } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function ContactSection() {
-  const { t, language } = useLanguage()
+  const { t } = useLanguage()
 
   return (
     <section id="contact" className="py-20 bg-white">
@@ -37,7 +37,7 @@ export default function ContactSection() {
                 {
                   icon: Phone,
                   title: t("contact.phone.title"),
-                  content: "0912 116 668 (Ms. Yến Nhi)",
+                  content: "0912 116 668 (Văn phòng Trung tâm)",
                   color: "emerald",
                 },
                 {
@@ -60,7 +60,14 @@ export default function ContactSection() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 className="font-medium text-gray-900 mb-1 whitespace-nowrap">{item.title}</h4>
-                    <p className="text-gray-600 text-sm leading-relaxed break-words">{item.content}</p>
+                                            <div className="text-gray-600 text-sm leading-relaxed break-words vietnamese-text vietnamese-wrap">
+                          {item.content.includes('\n')
+                            ? item.content.split('\n').map((line, lineIndex) => (
+                                <div key={lineIndex} className="text-no-orphans preserve-phrases">{line}</div>
+                              ))
+                            : <div className="text-no-orphans preserve-phrases">{item.content}</div>
+                          }
+                    </div>
                   </div>
                 </div>
               ))}
@@ -132,7 +139,7 @@ export default function ContactSection() {
             <div className="lg:col-span-2">
               <Card className="border-0 shadow-soft overflow-hidden">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0963715949034!2d105.84117731533314!3d21.03333598599029!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab9bd9861ca1%3A0xe7887f7b72ca17a9!2zSOG7kyBHxrDGoW0sIEhhaSBCw6AgVHLGsW5nLCBIw6AgTuG7mWksIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1640995200000!5m2!1svi!2s"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d466.35945202183267!2d105.8436388!3d21.0328411!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135abbddc08de1d%3A0x34734a82d8a27cbb!2s10%20P.%20%C4%90%C6%B0%E1%BB%9Dng%20Th%C3%A0nh%2C%20C%E1%BB%ADa%20%C4%90%C3%B4ng%2C%20Ho%C3%A0n%20Ki%E1%BA%BFm%2C%20H%C3%A0%20N%E1%BB%99i%2C%20Vi%E1%BB%87t%20Nam!5e0!3m2!1svi!2s!4v1705234567890!5m2!1svi!2s"
                   width="100%"
                   height="400"
                   style={{ border: 0 }}
@@ -192,7 +199,14 @@ export default function ContactSection() {
                 </CardContent>
               </Card>
 
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium text-xs lg:text-sm">
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium text-xs lg:text-sm"
+                onClick={() => {
+                  const address = "Tầng 3, Nhà A, Số 10 Đường Thành, Phường Cửa Đông, Quận Hoàn Kiếm, Hà Nội";
+                  const encodedAddress = encodeURIComponent(address);
+                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');
+                }}
+              >
                 <Navigation className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="whitespace-nowrap truncate">{t("contact.directions.btn")}</span>
               </Button>

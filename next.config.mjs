@@ -9,24 +9,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  trailingSlash: true,
+  trailingSlash: false,
   poweredByHeader: false,
-  reactStrictMode: true,
-  // Remove experimental optimizeCss that requires critters
-  // experimental: {
-  //   optimizeCss: true,
-  // },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      }
-    }
-    return config
-  },
+  reactStrictMode: false,
 }
 
 export default nextConfig

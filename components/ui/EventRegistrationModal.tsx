@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { X, User, Mail, Phone, MapPin, Calendar, Users, CheckCircle } from "lucide-react"
+import { X, User, MapPin, Calendar, Users, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -21,7 +21,7 @@ export default function EventRegistrationModal({
   eventDate,
   eventLocation
 }: EventRegistrationModalProps) {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [formData, setFormData] = useState({
     fullName: "",
@@ -88,10 +88,10 @@ export default function EventRegistrationModal({
               </div>
               <div>
                 <h2 className="text-xl font-bold">
-                  {language === 'vi' ? 'Đăng ký tham gia sự kiện' : 'Event Registration'}
+                  {t("event.registration.title")}
                 </h2>
                 <p className="text-white/80 text-sm">
-                  {language === 'vi' ? 'Vui lòng điền thông tin để đăng ký' : 'Please fill in your information to register'}
+                  {t("event.registration.subtitle")}
                 </p>
               </div>
             </div>
@@ -113,7 +113,7 @@ export default function EventRegistrationModal({
               {/* Event Info */}
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <h3 className="font-semibold text-gray-900 mb-3">
-                  {language === 'vi' ? 'Thông tin sự kiện' : 'Event Information'}
+                  {t("event.info.title")}
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center text-gray-600">
@@ -137,18 +137,18 @@ export default function EventRegistrationModal({
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <User className="w-5 h-5 mr-2 text-primary" />
-                    {language === 'vi' ? 'Thông tin cá nhân' : 'Personal Information'}
+                    {t("contact.modal.personal.info")}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Họ và tên' : 'Full Name'} *
+                        {t("contact.modal.full.name")} *
                       </label>
                       <Input
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Nhập họ và tên' : 'Enter full name'}
+                        placeholder={t("contact.modal.placeholder.name")}
                         required
                         className="w-full"
                       />
@@ -162,34 +162,34 @@ export default function EventRegistrationModal({
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Nhập địa chỉ email' : 'Enter email address'}
+                        placeholder={t("contact.modal.placeholder.email")}
                         required
                         className="w-full"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Số điện thoại' : 'Phone Number'} *
+                        {t("contact.modal.phone")} *
                       </label>
                       <Input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Nhập số điện thoại' : 'Enter phone number'}
+                        placeholder={t("contact.modal.placeholder.phone")}
                         required
                         className="w-full"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Tổ chức/Công ty' : 'Organization/Company'}
+                        {t("contact.modal.organization")}
                       </label>
                       <Input
                         name="organization"
                         value={formData.organization}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Nhập tên tổ chức' : 'Enter organization name'}
+                        placeholder={t("contact.modal.placeholder.organization")}
                         className="w-full"
                       />
                     </div>
@@ -200,43 +200,43 @@ export default function EventRegistrationModal({
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <Users className="w-5 h-5 mr-2 text-primary" />
-                    {language === 'vi' ? 'Thông tin nghề nghiệp' : 'Professional Information'}
+                    {t("contact.modal.professional.info")}
                   </h4>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Chức vụ/Vị trí' : 'Position/Title'}
+                        {t("contact.modal.position")}
                       </label>
                       <Input
                         name="position"
                         value={formData.position}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Nhập chức vụ hiện tại' : 'Enter current position'}
+                        placeholder={t("contact.modal.placeholder.position")}
                         className="w-full"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Kinh nghiệm liên quan' : 'Relevant Experience'}
+                        {t("contact.modal.experience")}
                       </label>
                       <textarea
                         name="experience"
                         value={formData.experience}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Mô tả ngắn gọn kinh nghiệm của bạn...' : 'Briefly describe your experience...'}
+                        placeholder={t("contact.modal.placeholder.experience")}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {language === 'vi' ? 'Mong muốn từ sự kiện' : 'Expectations from Event'}
+                        {t("contact.modal.expectations")}
                       </label>
                       <textarea
                         name="expectations"
                         value={formData.expectations}
                         onChange={handleInputChange}
-                        placeholder={language === 'vi' ? 'Bạn mong muốn gì từ sự kiện này?' : 'What do you expect from this event?'}
+                        placeholder={t("contact.modal.placeholder.expectations")}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                       />
@@ -254,10 +254,7 @@ export default function EventRegistrationModal({
                       className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                     />
                     <label htmlFor="terms" className="text-sm text-gray-700">
-                      {language === 'vi' 
-                        ? 'Tôi đồng ý với các điều khoản và điều kiện của sự kiện. Tôi hiểu rằng thông tin cá nhân sẽ được sử dụng để liên lạc về sự kiện này.'
-                        : 'I agree to the terms and conditions of the event. I understand that personal information will be used to communicate about this event.'
-                      }
+                      {t("event.registration.agree.terms")}
                     </label>
                   </div>
                 </div>
@@ -270,13 +267,13 @@ export default function EventRegistrationModal({
                     onClick={handleClose}
                     className="flex-1 py-3"
                   >
-                    {language === 'vi' ? 'Hủy' : 'Cancel'}
+                    {t("contact.modal.cancel")}
                   </Button>
                   <Button
                     type="submit"
                     className="flex-1 bg-primary hover:bg-primary/90 py-3"
                   >
-                    {language === 'vi' ? 'Đăng ký ngay' : 'Register Now'}
+                    {t("event.registration.register.now")}
                   </Button>
                 </div>
               </form>
@@ -288,26 +285,20 @@ export default function EventRegistrationModal({
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                {language === 'vi' ? 'Đăng ký thành công!' : 'Registration Successful!'}
+                {t("event.registration.success.title")}
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                {language === 'vi' 
-                  ? 'Cảm ơn bạn đã đăng ký tham gia sự kiện. Chúng tôi sẽ gửi email xác nhận và thông tin chi tiết trong thời gian sớm nhất.'
-                  : 'Thank you for registering for the event. We will send you a confirmation email and detailed information soon.'
-                }
+                {t("event.registration.success.message")}
               </p>
               <div className="space-y-3">
                 <Button
                   onClick={handleClose}
                   className="w-full bg-primary hover:bg-primary/90 py-3"
                 >
-                  {language === 'vi' ? 'Đóng' : 'Close'}
+                  {t("common.close")}
                 </Button>
                 <p className="text-sm text-gray-500">
-                  {language === 'vi' 
-                    ? 'Kiểm tra email để xem thông tin chi tiết'
-                    : 'Check your email for detailed information'
-                  }
+                  {t("event.registration.check.email")}
                 </p>
               </div>
             </div>

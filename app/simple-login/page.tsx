@@ -14,7 +14,7 @@ export default function SimpleLogin() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
+  // const router = useRouter()
 
   // Generate simple captcha with multiple operations
   const generateCaptcha = () => {

@@ -52,10 +52,57 @@ export default function DirectorMessage() {
                 />
 
                 {/* Floating Achievement Badge */}
-                <div className="absolute -bottom-6 -right-6 glass-card p-4 rounded-2xl shadow-luxury border border-white/20">
-                  <div className="text-center">
-                    <div className="text-2xl font-display gradient-text-primary mb-1">CEO</div>
-                    <div className="text-xs text-gray-600 font-medium whitespace-nowrap">RCP Leader</div>
+                <div className="absolute -bottom-8 -right-8 group cursor-pointer">
+                  {/* Multiple layered shadows for depth */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-emerald-500/30 rounded-2xl blur-xl scale-110 opacity-60 group-hover:opacity-80 transition-all duration-500"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-emerald-500/20 rounded-2xl blur-2xl scale-125 opacity-40 group-hover:opacity-60 transition-all duration-700"></div>
+                  
+                  {/* Main badge container */}
+                  <div className="relative">
+                    {/* Outer ring with gradient border */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-emerald-500 to-primary rounded-2xl p-0.5 group-hover:p-1 transition-all duration-300">
+                      <div className="w-full h-full bg-white/95 rounded-2xl"></div>
+                    </div>
+                    
+                    {/* Badge content */}
+                    <div className="relative bg-gradient-to-br from-white/95 via-white/90 to-emerald-50/80 backdrop-blur-xl rounded-2xl px-6 py-4 shadow-2xl border border-white/40 group-hover:shadow-3xl group-hover:scale-105 transition-all duration-300">
+                      {/* Top accent line */}
+                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-primary to-emerald-500 rounded-full opacity-60"></div>
+                      
+                      {/* Icon */}
+                      <div className="flex justify-center mb-3">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-500 rounded-xl blur-sm opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                          <div className="relative w-10 h-10 bg-gradient-to-br from-primary to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-500">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Title with enhanced typography */}
+                      <div className="text-center">
+                        <div className="text-xl font-display font-bold bg-gradient-to-r from-primary via-emerald-600 to-primary bg-clip-text text-transparent group-hover:from-emerald-600 group-hover:via-primary group-hover:to-emerald-600 transition-all duration-500 tracking-tight">
+                          Director
+                        </div>
+                        
+                        {/* Decorative underline */}
+                        <div className="mt-2 flex justify-center">
+                          <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-full group-hover:w-16 group-hover:via-emerald-500/60 transition-all duration-500"></div>
+                        </div>
+                      </div>
+                      
+                      {/* Bottom decorative elements */}
+                      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
+                        <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-pulse delay-300"></div>
+                        <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse delay-700"></div>
+                      </div>
+                      
+                      {/* Corner accent */}
+                      <div className="absolute top-3 right-3 w-2 h-2 bg-gradient-to-br from-primary/30 to-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -74,11 +121,19 @@ export default function DirectorMessage() {
                     {/* Quote Content - Added proper padding to avoid overlap */}
                     <div className="pt-8 pl-8">
                       <blockquote
-                        className={`text-gray-700 leading-relaxed italic font-display mb-8 lg:mb-10 ${
+                        className={`text-gray-700 leading-relaxed italic font-display mb-8 lg:mb-10 vietnamese-text vietnamese-wrap preserve-phrases ${
                           language === "en" ? "text-lg lg:text-xl" : "text-xl lg:text-2xl"
                         }`}
                       >
-                        {t("director.quote")}
+                        {t("director.quote").includes('\n\n')
+                          ? t("director.quote").split('\n\n').map((paragraph, index) => (
+                              <span key={index} className="text-no-orphans">
+                                {paragraph}
+                                {index < t("director.quote").split('\n\n').length - 1 && <><br /><br /></>}
+                              </span>
+                            ))
+                          : t("director.quote")
+                        }
                       </blockquote>
                     </div>
 

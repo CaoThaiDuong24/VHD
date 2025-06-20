@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, ArrowRight } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { NewsItem } from "@/lib/newsData"
 
@@ -13,7 +12,7 @@ interface NewsCardProps {
 }
 
 export default function NewsCard({ item }: NewsCardProps) {
-  const { t, language } = useLanguage()
+  const { language, t } = useLanguage()
   const router = useRouter()
   const pathname = usePathname()
   
@@ -86,7 +85,7 @@ export default function NewsCard({ item }: NewsCardProps) {
         <div className="absolute top-4 left-4">
           <div className="glass-card px-3 py-1 rounded-full">
             <span className="text-gray-700 text-xs font-medium whitespace-nowrap">
-              {language === 'vi' ? 'Mới' : 'New'}
+              {t("news.new.badge")}
             </span>
           </div>
         </div>
@@ -104,7 +103,7 @@ export default function NewsCard({ item }: NewsCardProps) {
             <span className="whitespace-nowrap">{item.date}</span>
           </div>
           <div className="flex items-center space-x-1 text-primary font-semibold group-hover:text-primary/80 transition-colors duration-300 whitespace-nowrap">
-            <span>{language === 'vi' ? 'Đọc thêm' : 'Read more'}</span>
+                          <span>{t("news.read.more")}</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
           </div>
         </div>

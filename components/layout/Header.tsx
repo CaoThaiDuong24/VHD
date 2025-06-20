@@ -52,7 +52,7 @@ export default function Header() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
                 <div className="relative bg-white p-3 rounded-2xl shadow-elegant group-hover:shadow-luxury transition-all duration-500 group-hover:scale-105 border border-gray-100/50">
-                  <Image src="/images/rcp-logo.png" alt="RCP Logo" width={40} height={40} className="object-contain" />
+                  <Image src="/images/rcp-logo.png" alt={t("brand.logo.alt")} width={40} height={40} className="object-contain" />
                   <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
               </div>
@@ -109,7 +109,7 @@ export default function Header() {
                   className="btn-primary px-6 py-3 rounded-xl font-semibold shadow-elegant hover:shadow-luxury transition-all duration-300 transform hover:scale-105"
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
-                  Liên hệ ngay
+                  {t("header.cta")}
                 </Button>
                 </Link>
               </div>
@@ -178,7 +178,7 @@ export default function Header() {
                   className="w-full btn-primary py-4 rounded-xl font-semibold shadow-elegant"
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
-                  Liên hệ với chúng tôi
+                  {t("header.cta.mobile")}
                 </Button>
                 </Link>
               </div>

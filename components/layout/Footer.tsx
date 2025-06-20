@@ -17,14 +17,14 @@ export default function Footer() {
           <div className="md:col-span-1">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-                <Image src="/images/rcp-logo.png" alt="RCP Logo" width={24} height={24} className="object-contain" />
+                <Image src="/images/rcp-logo.png" alt={t("brand.logo.alt")} width={24} height={24} className="object-contain" />
               </div>
               <div className="min-w-0">
                 <span className="text-xl font-display whitespace-nowrap">RCP</span>
-                <div className="text-xs text-gray-400 whitespace-nowrap">Reading Culture Center</div>
+                <div className="text-xs text-gray-400 whitespace-nowrap">{t("brand.reading.culture.center")}</div>
               </div>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed mb-6">{t("footer.brand")}</p>
+            <p className="text-gray-300 text-sm leading-relaxed mb-6 whitespace-pre-line">{t("footer.brand")}</p>
 
             {/* Social Media */}
             <div className="space-y-3">
@@ -73,7 +73,7 @@ export default function Footer() {
             <div className="space-y-3 text-gray-300 text-sm">
               <div>
                 <div className="font-medium text-white mb-1 whitespace-nowrap">{t("footer.orginfo.fullname")}</div>
-                <div className="text-xs lg:text-sm leading-relaxed">{t("footer.orginfo.fullname.value")}</div>
+                <div className="text-xs lg:text-sm leading-relaxed whitespace-pre-line">{t("footer.orginfo.fullname.value")}</div>
               </div>
               <div>
                 <div className="font-medium text-white mb-1 whitespace-nowrap">{t("footer.orginfo.english")}</div>
@@ -96,7 +96,14 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                <div className="text-gray-300 text-sm break-words">{t("contact.address.content")}</div>
+                <div className="text-gray-300 text-sm break-words vietnamese-text vietnamese-wrap">
+                  {t("contact.address.content").includes('\n')
+                    ? t("contact.address.content").split('\n').map((line, index) => (
+                        <div key={index} className="text-no-orphans preserve-phrases">{line}</div>
+                      ))
+                    : <div className="text-no-orphans preserve-phrases">{t("contact.address.content")}</div>
+                  }
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-primary flex-shrink-0" />
@@ -104,7 +111,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <div className="text-gray-300 text-sm whitespace-nowrap">0912 116 668 (Ms. Yến Nhi)</div>
+                <div className="text-gray-300 text-sm whitespace-nowrap">0912 116 668 (Văn phòng Trung tâm)</div>
               </div>
             </div>
           </div>
@@ -128,7 +135,7 @@ export default function Footer() {
                 onClick={() => {}}
               >
                 <Map className="h-3 w-3 mr-1" />
-                {language === 'vi' ? 'Sơ đồ trang web' : 'Sitemap'}
+{t("footer.sitemap")}
               </button>
             </div>
           </div>

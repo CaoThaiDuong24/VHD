@@ -14,7 +14,7 @@ import Image from "next/image"
 import EventRegistrationModal from "@/components/ui/EventRegistrationModal"
 
 export default function EventDetailPage() {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const { events, getEventById } = useEvents()
   const params = useParams()
   const router = useRouter()
@@ -73,7 +73,7 @@ export default function EventDetailPage() {
           <div className="container mx-auto px-6 py-20">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                {language === 'vi' ? 'Không tìm thấy sự kiện' : 'Event not found'}
+                {t("event.not.found")}
               </h1>
               <p className="text-gray-600 mb-8">
                 {language === 'vi' 
@@ -83,7 +83,7 @@ export default function EventDetailPage() {
               </p>
               <Button onClick={() => router.push('/events')}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {language === 'vi' ? 'Quay lại danh sách sự kiện' : 'Back to events list'}
+                {t("event.back.to.list")}
               </Button>
             </div>
           </div>
@@ -99,10 +99,10 @@ export default function EventDetailPage() {
   const displayParticipants = language === 'vi' ? event.participants : (event.participantsEn || event.participants)
   const displayCategory = language === 'vi' ? event.category : (event.categoryEn || event.category)
 
-  const statusLabel = event.status === 'upcoming' ? (language === 'vi' ? 'Sắp diễn ra' : 'Upcoming') : 
-                     event.status === 'ongoing' ? (language === 'vi' ? 'Đang diễn ra' : 'Ongoing') :
-                     event.status === 'completed' ? (language === 'vi' ? 'Đã kết thúc' : 'Completed') :
-                     language === 'vi' ? 'Đã hủy' : 'Cancelled'
+  const statusLabel = event.status === 'upcoming' ? t("event.status.upcoming") : 
+                     event.status === 'ongoing' ? t("event.status.ongoing") :
+                     event.status === 'completed' ? t("event.status.completed") :
+                     t("event.status.cancelled")
 
   return (
     <div className="min-h-screen">
@@ -117,7 +117,7 @@ export default function EventDetailPage() {
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {language === 'vi' ? 'Quay lại danh sách sự kiện' : 'Back to events list'}
+            {t("event.back.to.list")}
           </Button>
         </div>
 
@@ -168,10 +168,10 @@ export default function EventDetailPage() {
                 <Card className="mb-8">
                   <CardContent className="p-8">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                      {language === 'vi' ? 'Mô tả sự kiện' : 'Event Description'}
+                      {t("event.description")}
                     </h2>
                     <div className="prose prose-lg max-w-none text-gray-700">
-                      <p>{displayDescription}</p>
+                      <p className="vietnamese-text vietnamese-wrap text-no-orphans">{displayDescription}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -180,14 +180,14 @@ export default function EventDetailPage() {
                 <Card>
                   <CardContent className="p-8">
                     <h3 className="text-xl font-bold text-gray-900 mb-6">
-                      {language === 'vi' ? 'Chi tiết sự kiện' : 'Event Details'}
+                      {t("event.details")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="flex items-center gap-3">
                         <Calendar className="w-6 h-6 text-green-600" />
                         <div>
                           <p className="font-medium text-gray-900">
-                            {language === 'vi' ? 'Ngày diễn ra' : 'Date'}
+                            {t("event.date")}
                           </p>
                           <p className="text-gray-600">
                             {new Date(event.date).toLocaleDateString('vi-VN')}
@@ -199,7 +199,7 @@ export default function EventDetailPage() {
                         <Clock className="w-6 h-6 text-green-600" />
                         <div>
                           <p className="font-medium text-gray-900">
-                            {language === 'vi' ? 'Thời gian' : 'Time'}
+                            {t("event.time")}
                           </p>
                           <p className="text-gray-600">{event.time}</p>
                         </div>
@@ -209,7 +209,7 @@ export default function EventDetailPage() {
                         <MapPin className="w-6 h-6 text-green-600" />
                         <div>
                           <p className="font-medium text-gray-900">
-                            {language === 'vi' ? 'Địa điểm' : 'Location'}
+                            {t("event.location")}
                           </p>
                           <p className="text-gray-600">{displayLocation}</p>
                         </div>
@@ -219,7 +219,7 @@ export default function EventDetailPage() {
                         <Users className="w-6 h-6 text-green-600" />
                         <div>
                           <p className="font-medium text-gray-900">
-                            {language === 'vi' ? 'Số lượng tham gia' : 'Participants'}
+                            {t("event.participants")}
                           </p>
                           <p className="text-gray-600">{displayParticipants}</p>
                         </div>
@@ -241,10 +241,10 @@ export default function EventDetailPage() {
                         disabled={event.status === 'completed' || event.status === 'cancelled'}
                       >
                         {event.status === 'completed' ? 
-                          (language === 'vi' ? 'Sự kiện đã kết thúc' : 'Event ended') :
+                          t("event.ended") :
                           event.status === 'cancelled' ?
-                          (language === 'vi' ? 'Sự kiện đã hủy' : 'Event cancelled') :
-                          (language === 'vi' ? 'Đăng ký tham gia' : 'Register to participate')
+                          t("event.cancelled") :
+                          t("event.register")
                         }
                       </Button>
 
@@ -256,7 +256,7 @@ export default function EventDetailPage() {
                           className="flex-1"
                         >
                           <Heart className={`w-4 h-4 mr-2 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                          {language === 'vi' ? 'Quan tâm' : 'Like'}
+                          {t("event.like")}
                         </Button>
                         <Button 
                           variant="outline" 
@@ -264,7 +264,7 @@ export default function EventDetailPage() {
                           className="flex-1"
                         >
                           <Share2 className="w-4 h-4 mr-2" />
-                          {language === 'vi' ? 'Chia sẻ' : 'Share'}
+                          {t("event.share")}
                         </Button>
                       </div>
 
@@ -272,13 +272,13 @@ export default function EventDetailPage() {
                       {(event.views || event.registrations) && (
                         <div className="pt-6 border-t border-gray-200">
                           <h4 className="font-medium text-gray-900 mb-4">
-                            {language === 'vi' ? 'Thống kê' : 'Statistics'}
+                            {t("event.statistics")}
                           </h4>
                           <div className="space-y-3">
                             {event.views && (
                               <div className="flex justify-between items-center">
                                 <span className="text-gray-600">
-                                  {language === 'vi' ? 'Lượt xem' : 'Views'}
+                                  {t("event.views")}
                                 </span>
                                 <span className="font-medium">{event.views.toLocaleString()}</span>
                               </div>
@@ -286,7 +286,7 @@ export default function EventDetailPage() {
                             {event.registrations && (
                               <div className="flex justify-between items-center">
                                 <span className="text-gray-600">
-                                  {language === 'vi' ? 'Đã đăng ký' : 'Registered'}
+                                  {t("event.registered")}
                                 </span>
                                 <span className="font-medium">{event.registrations.toLocaleString()}</span>
                               </div>

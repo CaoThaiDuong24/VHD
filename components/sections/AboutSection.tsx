@@ -16,8 +16,8 @@ export default function AboutSection() {
           <Badge className="mb-6 bg-gradient-to-r from-green-100 to-emerald-100 text-[#5D9C59] border-green-200 text-base px-6 py-3 font-semibold">
             {t("about.badge")}
           </Badge>
-          <h2 className="text-5xl font-bold text-gray-900 mb-6 font-inter">{t("about.title")}</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{t("about.pioneer.unit")}</p>
+          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-6 font-inter leading-tight">{t("about.title")}</h2>
+          <p className="text-lg lg:text-xl text-gray-600 max-w-5xl mx-auto leading-relaxed vietnamese-text vietnamese-wrap text-no-orphans pioneer-single-line">{t("about.pioneer.unit")}</p>
           <div className="w-32 h-1.5 bg-gradient-to-r from-[#5D9C59] to-[#7FB069] mx-auto rounded-full"></div>
         </div>
 
@@ -25,23 +25,35 @@ export default function AboutSection() {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-[#5D9C59]/10 to-emerald-600/10 rounded-3xl blur-2xl"></div>
             <Image
-              src="/images/DSC02433.JPG"
+              src="/images/DSC02217.JPG"
               alt="Trung tâm đọc thân thiện môi trường"
               width={600}
               height={500}
-              className="relative rounded-3xl shadow-2xl object-cover w-full h-[400px]"
+              className="relative rounded-3xl shadow-2xl object-cover w-full h-[400px] image-high-quality"
+              quality={95}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             />
             <div className="absolute -top-6 -right-6 bg-white/90 backdrop-blur-lg p-4 rounded-2xl shadow-xl border border-white/20">
               <div className="text-3xl font-bold bg-gradient-to-r from-[#5D9C59] to-[#7FB069] bg-clip-text text-transparent font-inter">
                 RCP
               </div>
-              <div className="text-sm text-gray-600 font-medium">Since 2024</div>
+              <div className="text-sm text-gray-600 font-medium">{t("brand.since.2024")}</div>
             </div>
           </div>
 
           <div>
-            <p className="text-gray-600 text-lg leading-relaxed mb-8">{t("about.description1")}</p>
-            <p className="text-gray-600 text-lg leading-relaxed mb-10">{t("about.description2")}</p>
+            <div className="text-gray-600 text-lg leading-relaxed mb-8 vietnamese-text">
+              {t("about.description1").includes('\n\n')
+                ? t("about.description1").split('\n\n').map((paragraph, index) => (
+                    <p key={index} className={`vietnamese-wrap text-no-orphans ${index > 0 ? "mt-4" : ""}`}>
+                      {paragraph}
+                    </p>
+                  ))
+                : <p className="vietnamese-wrap text-no-orphans">{t("about.description1")}</p>
+              }
+            </div>
+            <p className="text-gray-600 text-lg leading-relaxed mb-10 vietnamese-text vietnamese-wrap text-no-orphans">{t("about.description2")}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="border-2 border-green-100 hover:border-[#5D9C59] hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-50">
@@ -105,9 +117,9 @@ export default function AboutSection() {
           ].map((item, index) => (
             <Card
               key={index}
-              className={`text-center p-8 border-2 ${item.borderColor} hover:shadow-2xl transition-all duration-500 bg-gradient-to-br ${item.bgGradient} group`}
+              className={`p-8 border-2 ${item.borderColor} hover:shadow-2xl transition-all duration-500 bg-gradient-to-br ${item.bgGradient} group`}
             >
-              <div className="relative mb-6">
+              <div className="relative mb-6 text-center">
                 <div
                   className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300`}
                 ></div>
@@ -117,8 +129,10 @@ export default function AboutSection() {
                   <item.icon className="h-10 w-10 text-white" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4 font-inter">{item.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{item.description}</p>
+              <div className="text-center" style={{ textAlign: 'center' }}>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-inter" style={{ textAlign: 'center' }}>{item.title}</h3>
+                <p className="text-gray-600 leading-relaxed vietnamese-text vietnamese-wrap" style={{ textAlign: 'center' }}>{item.description}</p>
+              </div>
             </Card>
           ))}
         </div>
@@ -129,29 +143,35 @@ export default function AboutSection() {
             <div className="relative">
               <Image
                 src="/images/modern-library/professional-reading-space.jpeg"
-                alt="Không gian đọc hiện đại với thanh niên đang đọc sách"
+                alt={t("about.image1.alt")}
                 width={600}
                 height={400}
-                className="rounded-2xl shadow-soft object-cover w-full h-[300px]"
+                className="rounded-2xl shadow-soft object-cover w-full h-[300px] image-high-quality"
+                quality={95}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
               <div className="absolute bottom-4 left-4 text-white">
-                <h4 className="text-lg font-semibold mb-1">Không gian đọc hiện đại</h4>
-                <p className="text-sm opacity-90">Môi trường học tập thoải mái và chuyên nghiệp</p>
+                <h4 className="text-lg font-semibold mb-1">{t("about.image1.title")}</h4>
+                <p className="text-sm opacity-90">{t("about.image1.desc")}</p>
               </div>
             </div>
             <div className="relative">
               <Image
                 src="/images/modern-reading-space.jpg"
-                alt="Phát triển văn hóa đọc trong cộng đồng"
+                alt={t("about.image2.alt")}
                 width={600}
                 height={400}
-                className="rounded-2xl shadow-soft object-cover w-full h-[300px]"
+                className="rounded-2xl shadow-soft object-cover w-full h-[300px] image-high-quality"
+                quality={95}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
               <div className="absolute bottom-4 left-4 text-white">
-                <h4 className="text-lg font-semibold mb-1">Phát triển văn hóa đọc</h4>
-                <p className="text-sm opacity-90">Lan tỏa văn hóa đọc trong cộng đồng</p>
+                <h4 className="text-lg font-semibold mb-1">{t("about.image2.title")}</h4>
+                <p className="text-sm opacity-90">{t("about.image2.desc")}</p>
               </div>
             </div>
           </div>

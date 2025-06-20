@@ -1,6 +1,8 @@
+import { wpCache } from './cacheService'
+
 // WordPress API configuration
-const WORDPRESS_API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || 'https://your-wordpress-site.com/wp-json/wp/v2'
-const WORDPRESS_USERNAME = process.env.WORDPRESS_USERNAME || ''
+const WORDPRESS_API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || 'http://vhdcom.local/wp-json/wp/v2'
+const WORDPRESS_USERNAME = process.env.WORDPRESS_USERNAME || 'admin'
 const WORDPRESS_PASSWORD = process.env.WORDPRESS_PASSWORD || ''
 
 // WordPress post interface
@@ -74,11 +76,99 @@ export class WordPressService {
 
   // Method to set credentials dynamically
   setCredentials(apiUrl: string, username: string, password: string) {
-    this.baseUrl = apiUrl
+    // Ensure the API URL ends with the correct WordPress REST API path
+    let cleanUrl = apiUrl.replace(/\/+$/, '') // Remove trailing slashes
+    
+    // Add wp-json/wp/v2 if not already present
+    if (!cleanUrl.includes('/wp-json/wp/v2')) {
+      cleanUrl += '/wp-json/wp/v2'
+    }
+    
+    this.baseUrl = cleanUrl
     this.auth = btoa(`${username}:${password}`)
+    
+    console.log('🔧 WordPress API URL set to:', cleanUrl)
   }
 
-  // Get all posts
+  // Test WordPress connection (with caching)
+  async testConnection(): Promise<{ success: boolean; message: string; details?: any }> {
+    // Check cache first
+    const cached = wpCache.getCachedConnectionStatus()
+    if (cached) {
+      console.log('🎯 Using cached connection status')
+      return cached
+    }
+
+    try {
+      console.log('🔍 Testing WordPress connection to:', this.baseUrl)
+      
+      // First, test if the base URL is reachable
+      const baseResponse = await fetch(this.baseUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!baseResponse.ok) {
+        if (baseResponse.status === 404) {
+          return {
+            success: false,
+            message: `WordPress REST API không tìm thấy tại: ${this.baseUrl}\n\nVui lòng kiểm tra:\n• URL WordPress đúng không?\n• REST API đã được bật?\n• Permalinks đã cấu hình?`
+          }
+        }
+        return {
+          success: false,
+          message: `Không thể kết nối tới WordPress: HTTP ${baseResponse.status}`
+        }
+      }
+
+      // Test authentication by getting posts
+      const postsResponse = await fetch(`${this.baseUrl}/posts?per_page=1`, {
+        headers: {
+          'Authorization': `Basic ${this.auth}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!postsResponse.ok) {
+        if (postsResponse.status === 401) {
+          return {
+            success: false,
+            message: 'Lỗi xác thực WordPress. Vui lòng kiểm tra:\n• Username đúng không?\n• Application Password đúng không?\n• User có quyền truy cập?'
+          }
+        }
+        const errorText = await postsResponse.text()
+        return {
+          success: false,
+          message: `Lỗi WordPress API: ${postsResponse.status} - ${errorText}`
+        }
+      }
+
+      const posts = await postsResponse.json()
+      const result = {
+        success: true,
+        message: `✅ Kết nối WordPress thành công!\n🔗 URL: ${this.baseUrl}\n📊 Tìm thấy ${posts.length > 0 ? 'posts' : 'không có posts nào'}`,
+        details: {
+          url: this.baseUrl,
+          postsFound: posts.length
+        }
+      }
+
+      // Cache successful connection
+      wpCache.cacheConnectionStatus(result)
+      return result
+
+    } catch (error) {
+      console.error('❌ WordPress connection test failed:', error)
+      return {
+        success: false,
+        message: `Lỗi kết nối: ${(error as Error).message}\n\nVui lòng kiểm tra:\n• Internet connection\n• WordPress server đang chạy\n• Firewall/CORS settings`
+      }
+    }
+  }
+
+  // Get all posts (with caching)
   async getPosts(params: {
     page?: number
     per_page?: number
@@ -86,7 +176,19 @@ export class WordPressService {
     search?: string
     orderby?: string
     order?: 'asc' | 'desc'
+    useCache?: boolean
   } = {}): Promise<WordPressPost[]> {
+    // Generate cache key based on params
+    const cacheKey = `posts-${JSON.stringify(params)}`
+    
+    // Check cache first (unless explicitly disabled)
+    if (params.useCache !== false) {
+      const cached = wpCache.get<WordPressPost[]>(cacheKey)
+      if (cached) {
+        console.log(`🎯 Using cached posts for params: ${JSON.stringify(params)}`)
+        return cached
+      }
+    }
     try {
       const queryParams = new URLSearchParams()
       
@@ -100,6 +202,8 @@ export class WordPressService {
       if (params.orderby) queryParams.set('orderby', params.orderby)
       if (params.order) queryParams.set('order', params.order)
 
+      console.log('🔍 Fetching from:', `${this.baseUrl}/posts?${queryParams}`)
+      
       const response = await fetch(`${this.baseUrl}/posts?${queryParams}`, {
         headers: {
           'Authorization': `Basic ${this.auth}`,
@@ -108,10 +212,27 @@ export class WordPressService {
       })
 
       if (!response.ok) {
-        throw new Error(`WordPress API error: ${response.status}`)
+        const errorText = await response.text()
+        console.error('❌ WordPress API Error Response:', errorText)
+        
+        if (response.status === 404) {
+          throw new Error(`WordPress REST API không tìm thấy. Kiểm tra:\n1. URL: ${this.baseUrl}\n2. WordPress REST API đã bật\n3. Permalinks đã cấu hình`)
+        } else if (response.status === 401) {
+          throw new Error('Lỗi xác thực. Kiểm tra username/password WordPress')
+        } else {
+          throw new Error(`WordPress API error ${response.status}: ${errorText}`)
+        }
       }
 
-      return await response.json()
+      const posts = await response.json()
+      console.log(`✅ Fetched ${posts.length} posts from WordPress`)
+      
+      // Cache the results
+      if (params.useCache !== false) {
+        wpCache.set(cacheKey, posts, 5 * 60 * 1000) // Cache for 5 minutes
+      }
+      
+      return posts
     } catch (error) {
       console.error('Error fetching WordPress posts:', error)
       throw error
@@ -139,7 +260,7 @@ export class WordPressService {
     }
   }
 
-  // Create new post
+  // Create new post with enhanced error handling and validation
   async createPost(postData: {
     title: string
     content: string
@@ -150,35 +271,147 @@ export class WordPressService {
     featured_media?: number
   }): Promise<WordPressPost> {
     try {
+      // Validate required fields
+      if (!postData.title || postData.title.trim() === '') {
+        throw new Error('Tiêu đề bài viết không được để trống')
+      }
+      
+      if (!postData.content || postData.content.trim() === '') {
+        throw new Error('Nội dung bài viết không được để trống')
+      }
+      
+      // Clean and prepare data
+      const cleanTitle = postData.title.trim()
+      const cleanContent = postData.content.trim()
+      const cleanExcerpt = postData.excerpt ? postData.excerpt.trim() : ''
+      
+      console.log('🔍 Creating WordPress post with data:', {
+        title: cleanTitle,
+        status: postData.status || 'draft',
+        contentLength: cleanContent.length,
+        excerptLength: cleanExcerpt.length,
+        hasCategories: postData.categories && postData.categories.length > 0,
+        hasTags: postData.tags && postData.tags.length > 0
+      })
+      
+      // Prepare request body with cleaned data
+      const requestBody = {
+        title: cleanTitle,
+        content: cleanContent,
+        excerpt: cleanExcerpt,
+        status: postData.status || 'draft',
+        categories: postData.categories || [],
+        tags: postData.tags || [],
+        featured_media: postData.featured_media || 0,
+        // Additional WordPress fields for better SEO and formatting
+        comment_status: 'open',
+        ping_status: 'open',
+        format: 'standard'
+      }
+      
+      console.log('📡 Sending request to:', `${this.baseUrl}/posts`)
+      console.log('🔐 Auth header:', this.auth ? 'SET' : 'NOT SET')
+      console.log('📝 Request body preview:', {
+        title: requestBody.title,
+        status: requestBody.status,
+        contentPreview: requestBody.content.substring(0, 100) + '...',
+        excerptPreview: requestBody.excerpt.substring(0, 50) + '...'
+      })
+      
       const response = await fetch(`${this.baseUrl}/posts`, {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${this.auth}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'Frontend-WordPress-Sync/1.0'
         },
-        body: JSON.stringify({
-          title: postData.title,
-          content: postData.content,
-          excerpt: postData.excerpt || '',
-          status: postData.status || 'draft',
-          categories: postData.categories || [],
-          tags: postData.tags || [],
-          featured_media: postData.featured_media || 0,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
+      console.log('📡 Response status:', response.status)
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()))
+      
       if (!response.ok) {
-        throw new Error(`WordPress API error: ${response.status}`)
+        const errorText = await response.text()
+        console.error('❌ WordPress API Error Response:', errorText)
+        
+        let errorMessage = `WordPress API error: ${response.status}`
+        let errorDetails = ''
+        
+        try {
+          const errorData = JSON.parse(errorText)
+          console.error('❌ Parsed error data:', errorData)
+          
+          if (errorData.message) {
+            errorMessage = errorData.message
+          }
+          if (errorData.code) {
+            errorMessage = `${errorData.code}: ${errorMessage}`
+          }
+          if (errorData.data && errorData.data.details) {
+            errorDetails = JSON.stringify(errorData.data.details)
+          }
+        } catch (e) {
+          errorMessage = `${errorMessage} - ${errorText}`
+        }
+        
+        // Enhanced error messages based on status codes
+        if (response.status === 401) {
+          errorMessage = 'Lỗi xác thực WordPress. Kiểm tra username/password hoặc tạo Application Password mới.\n\n' +
+                        '🔧 Cách tạo Application Password:\n' +
+                        '1. Vào: http://vhdcom.local/wp-admin/profile.php\n' +
+                        '2. Cuộn xuống "Application Passwords"\n' +
+                        '3. Tạo password mới với tên "Frontend Sync"\n' +
+                        '4. Sử dụng password đó thay cho password thường'
+        } else if (response.status === 403) {
+          errorMessage = 'Không có quyền tạo bài viết. Kiểm tra permissions của user WordPress.\n\n' +
+                        '🔧 Cách fix:\n' +
+                        '1. Đảm bảo user có role Editor hoặc Administrator\n' +
+                        '2. Kiểm tra plugin bảo mật có block REST API không\n' +
+                        '3. Kiểm tra .htaccess có rules chặn API không'
+        } else if (response.status === 404) {
+          errorMessage = 'WordPress REST API không tìm thấy.\n\n' +
+                        '🔧 Cách fix:\n' +
+                        '1. Kiểm tra URL WordPress đúng không\n' +
+                        '2. Đảm bảo permalinks đã được cấu hình\n' +
+                        '3. Kiểm tra REST API đã được enable'
+        } else if (response.status === 500) {
+          errorMessage = 'Lỗi server WordPress. Kiểm tra WordPress error logs.\n\n' +
+                        '🔧 Debug:\n' +
+                        '1. Kiểm tra wp-content/debug.log\n' +
+                        '2. Tắt tất cả plugins thử lại\n' +
+                        '3. Chuyển về theme mặc định'
+        }
+        
+        if (errorDetails) {
+          errorMessage += `\n\n📋 Chi tiết lỗi: ${errorDetails}`
+        }
+        
+        throw new Error(errorMessage)
       }
 
-      return await response.json()
+      const createdPost = await response.json()
+      console.log('✅ WordPress post created successfully:', {
+        id: createdPost.id,
+        title: createdPost.title?.rendered,
+        status: createdPost.status,
+        link: createdPost.link,
+        date: createdPost.date
+      })
+      
+      // Clear relevant caches after successful creation
+      wpCache.clearCache('posts-')
+      
+      return createdPost
     } catch (error) {
-      console.error('Error creating WordPress post:', error)
+      console.error('❌ Error creating WordPress post:', error)
+      console.error('❌ Error stack:', (error as Error).stack)
       throw error
     }
   }
 
-  // Update existing post
+  // Update existing post with enhanced validation and error handling
   async updatePost(id: number, postData: {
     title?: string
     content?: string
@@ -189,22 +422,86 @@ export class WordPressService {
     featured_media?: number
   }): Promise<WordPressPost> {
     try {
+      if (!id || id <= 0) {
+        throw new Error('ID bài viết không hợp lệ')
+      }
+
+      // Clean data if provided
+      const cleanData: any = {}
+      if (postData.title !== undefined) {
+        cleanData.title = postData.title.trim()
+      }
+      if (postData.content !== undefined) {
+        cleanData.content = postData.content.trim()
+      }
+      if (postData.excerpt !== undefined) {
+        cleanData.excerpt = postData.excerpt.trim()
+      }
+      if (postData.status !== undefined) {
+        cleanData.status = postData.status
+      }
+      if (postData.categories !== undefined) {
+        cleanData.categories = postData.categories
+      }
+      if (postData.tags !== undefined) {
+        cleanData.tags = postData.tags
+      }
+      if (postData.featured_media !== undefined) {
+        cleanData.featured_media = postData.featured_media
+      }
+
+      console.log('🔄 Updating WordPress post:', {
+        id,
+        fieldsToUpdate: Object.keys(cleanData),
+        hasTitle: !!cleanData.title,
+        hasContent: !!cleanData.content,
+        status: cleanData.status
+      })
+
       const response = await fetch(`${this.baseUrl}/posts/${id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Basic ${this.auth}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'Frontend-WordPress-Sync/1.0'
         },
-        body: JSON.stringify(postData),
+        body: JSON.stringify(cleanData),
       })
 
+      console.log('📡 Update response status:', response.status)
+
       if (!response.ok) {
-        throw new Error(`WordPress API error: ${response.status}`)
+        const errorText = await response.text()
+        console.error('❌ WordPress update error:', errorText)
+        
+        let errorMessage = `WordPress API error: ${response.status}`
+        
+        if (response.status === 401) {
+          errorMessage = 'Lỗi xác thực khi cập nhật bài viết'
+        } else if (response.status === 403) {
+          errorMessage = 'Không có quyền cập nhật bài viết này'
+        } else if (response.status === 404) {
+          errorMessage = `Không tìm thấy bài viết với ID: ${id}`
+        }
+        
+        throw new Error(errorMessage)
       }
 
-      return await response.json()
+      const updatedPost = await response.json()
+      console.log('✅ WordPress post updated successfully:', {
+        id: updatedPost.id,
+        title: updatedPost.title?.rendered,
+        status: updatedPost.status
+      })
+
+      // Clear relevant caches
+      wpCache.clearCache('posts-')
+      wpCache.delete(`wp-post-${id}`)
+
+      return updatedPost
     } catch (error) {
-      console.error('Error updating WordPress post:', error)
+      console.error('❌ Error updating WordPress post:', error)
       throw error
     }
   }

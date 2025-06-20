@@ -7,10 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { 
   X, 
   User, 
-  Mail, 
-  Phone, 
   Building, 
-  MessageSquare, 
   CheckCircle,
   Send,
   CalendarDays
@@ -23,7 +20,7 @@ type RegistrationModalProps = {
 }
 
 export default function RegistrationModal({ isOpen, onClose, eventTitle }: RegistrationModalProps) {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -100,10 +97,10 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">
-                  {language === 'en' ? 'Event Registration' : 'Đăng ký sự kiện'}
+                  {t("event.registration.title")}
                 </h2>
                 <p className="text-primary-100 text-sm">
-                  {eventTitle || (language === 'en' ? 'Join us for this amazing event' : 'Tham gia cùng chúng tôi')}
+                  {eventTitle || t("event.registration.subtitle")}
                 </p>
               </div>
             </div>
@@ -125,16 +122,13 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {language === 'en' ? 'Registration Successful!' : 'Đăng ký thành công!'}
+                {t("event.registration.success.title")}
               </h3>
               <p className="text-gray-600 mb-4">
-                {language === 'en' 
-                  ? 'Your registration has been submitted successfully. We will contact you soon with more details.'
-                  : 'Đăng ký của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ với bạn sớm nhất với thông tin chi tiết.'
-                }
+                {t("event.registration.success.message")}
               </p>
               <div className="text-sm text-gray-500">
-                {language === 'en' ? 'This window will close automatically...' : 'Cửa sổ này sẽ tự động đóng...'}
+                {t("contact.modal.closing")}
               </div>
             </div>
           ) : (
@@ -144,19 +138,19 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <User className="w-5 h-5 mr-2 text-primary" />
-                  {language === 'en' ? 'Personal Information' : 'Thông tin cá nhân'}
+                  {t("contact.modal.personal.info")}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'en' ? 'Full Name' : 'Họ và tên'} *
+                      {t("contact.modal.full.name")} *
                     </label>
                     <Input
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your full name' : 'Nhập họ và tên của bạn'}
+                      placeholder={t("contact.modal.placeholder.name")}
                       required
                       className="w-full"
                     />
@@ -171,7 +165,7 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your email' : 'Nhập email của bạn'}
+                      placeholder={t("contact.modal.placeholder.email")}
                       required
                       className="w-full"
                     />
@@ -181,27 +175,27 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'en' ? 'Phone Number' : 'Số điện thoại'}
+                      {t("contact.modal.phone")}
                     </label>
                     <Input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your phone number' : 'Nhập số điện thoại'}
+                      placeholder={t("contact.modal.placeholder.phone")}
                       className="w-full"
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'en' ? 'Organization' : 'Tổ chức'}
+                      {t("contact.modal.organization")}
                     </label>
                     <Input
                       name="organization"
                       value={formData.organization}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your organization' : 'Nhập tên tổ chức'}
+                      placeholder={t("contact.modal.placeholder.organization")}
                       className="w-full"
                     />
                   </div>
@@ -212,31 +206,31 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <Building className="w-5 h-5 mr-2 text-primary" />
-                  {language === 'en' ? 'Professional Information' : 'Thông tin nghề nghiệp'}
+                  {t("contact.modal.professional.info")}
                 </h3>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'en' ? 'Position' : 'Chức vụ'}
+                    {t("contact.modal.position")}
                   </label>
                   <Input
                     name="position"
                     value={formData.position}
                     onChange={handleInputChange}
-                    placeholder={language === 'en' ? 'Enter your position' : 'Nhập chức vụ của bạn'}
+                    placeholder={t("contact.modal.placeholder.position")}
                     className="w-full"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'en' ? 'Message' : 'Lời nhắn'}
+                    {t("contact.modal.message")}
                   </label>
                   <Textarea
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    placeholder={language === 'en' ? 'Any additional information...' : 'Thông tin bổ sung...'}
+                    placeholder={t("contact.modal.placeholder.message")}
                     rows={4}
                     className="w-full resize-none"
                   />
@@ -255,10 +249,7 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                   required
                 />
                 <label htmlFor="agreeToTerms" className="text-sm text-gray-700 leading-relaxed">
-                  {language === 'en' 
-                    ? 'I agree to the terms and conditions and privacy policy. I consent to receiving communication about this event.'
-                    : 'Tôi đồng ý với các điều khoản và chính sách bảo mật. Tôi đồng ý nhận thông tin liên lạc về sự kiện này.'
-                  }
+                  {t("contact.modal.agree.terms.events")}
                 </label>
               </div>
 
@@ -270,7 +261,7 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                   onClick={onClose}
                   className="px-6"
                 >
-                  {language === 'en' ? 'Cancel' : 'Hủy'}
+                  {t("contact.modal.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -280,12 +271,12 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                   {isLoading ? (
                     <div className="flex items-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      {language === 'en' ? 'Registering...' : 'Đang đăng ký...'}
+                      {t("event.registration.registering")}
                     </div>
                   ) : (
                     <div className="flex items-center">
                       <Send className="w-4 h-4 mr-2" />
-                      {language === 'en' ? 'Register Now' : 'Đăng ký ngay'}
+                      {t("event.registration.register.now")}
                     </div>
                   )}
                 </Button>

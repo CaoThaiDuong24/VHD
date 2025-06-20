@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { newsItems } from '@/lib/newsData'
 import type { NewsItem, GalleryImage } from '@/lib/newsData'
 import { WordPressService } from '@/lib/wordpressApi'
+import { wpCache } from '@/lib/cacheService'
 
 interface NewsContextType {
   newsItems: NewsItem[]
@@ -240,7 +241,7 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
       title: news.title,
       content: content,
       excerpt: news.description || '',
-      status: news.status === 'published' ? 'publish' as const : 'draft' as const,
+      status: (news.status === 'published' || news.status === 'completed') ? 'publish' as const : 'draft' as const,
       categories: [], // You might want to map categories to WordPress category IDs
       tags: [], // You might want to map tags to WordPress tag IDs
     }
@@ -268,16 +269,35 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     // Add new news to the beginning of the array instead of the end
     setNewsItems(prev => [newNews, ...prev])
     
-    // Always auto-sync to WordPress (forced sync)
-    try {
-      setLastSyncStatus('🔄 Đang đồng bộ lên WordPress...')
-      await createWordPressPost(newNews)
-      setLastSyncStatus('✅ Đã đồng bộ thành công lên WordPress')
+    // Debug sync settings
+    console.log('🔍 Sync Settings Check:', {
+      wpSyncEnabled,
+      autoSyncEnabled,
+      willSync: wpSyncEnabled && autoSyncEnabled
+    })
+
+    // Auto-sync to WordPress if enabled
+    if (wpSyncEnabled && autoSyncEnabled) {
+      try {
+        console.log('🚀 Starting WordPress sync for news:', newNews.title)
+        setLastSyncStatus('🔄 Đang đồng bộ lên WordPress...')
+        await createWordPressPost(newNews)
+        setLastSyncStatus('✅ Đã đồng bộ thành công lên WordPress')
+        console.log('✅ WordPress sync completed successfully')
+        setTimeout(() => setLastSyncStatus(''), 3000)
+      } catch (error) {
+        console.error('❌ WordPress sync failed:', error)
+        setLastSyncStatus('❌ Đồng bộ WordPress thất bại: ' + (error as Error).message)
+        setTimeout(() => setLastSyncStatus(''), 5000)
+      }
+    } else if (!wpSyncEnabled) {
+      console.log('ℹ️ WordPress sync disabled')
+      setLastSyncStatus('ℹ️ Đồng bộ WordPress chưa được kích hoạt')
       setTimeout(() => setLastSyncStatus(''), 3000)
-    } catch (error) {
-      console.error('WordPress sync failed:', error)
-      setLastSyncStatus('❌ Đồng bộ WordPress thất bại: ' + (error as Error).message)
-      setTimeout(() => setLastSyncStatus(''), 5000)
+    } else if (!autoSyncEnabled) {
+      console.log('ℹ️ Auto sync disabled')
+      setLastSyncStatus('ℹ️ Tự động đồng bộ chưa được bật')
+      setTimeout(() => setLastSyncStatus(''), 3000)
     }
     
     // Show success notification
@@ -295,21 +315,23 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
       item.id === id ? updatedItem : item
     ))
 
-    // Always auto-sync updates to WordPress
-    try {
-      setLastSyncStatus('🔄 Đang cập nhật WordPress...')
-      if (updatedItem.wpId) {
-        await updateWordPressPost(updatedItem)
-      } else {
-        // Create new post if no wpId exists
-        await createWordPressPost(updatedItem)
+    // Auto-sync updates to WordPress if enabled
+    if (wpSyncEnabled && autoSyncEnabled) {
+      try {
+        setLastSyncStatus('🔄 Đang cập nhật WordPress...')
+        if (updatedItem.wpId) {
+          await updateWordPressPost(updatedItem)
+        } else {
+          // Create new post if no wpId exists
+          await createWordPressPost(updatedItem)
+        }
+        setLastSyncStatus('✅ Đã cập nhật thành công trên WordPress')
+        setTimeout(() => setLastSyncStatus(''), 3000)
+      } catch (error) {
+        console.error('WordPress update failed:', error)
+        setLastSyncStatus('❌ Lỗi cập nhật WordPress: ' + (error as Error).message)
+        setTimeout(() => setLastSyncStatus(''), 5000)
       }
-      setLastSyncStatus('✅ Đã cập nhật thành công trên WordPress')
-      setTimeout(() => setLastSyncStatus(''), 3000)
-    } catch (error) {
-      console.error('WordPress update failed:', error)
-      setLastSyncStatus('❌ Lỗi cập nhật WordPress: ' + (error as Error).message)
-      setTimeout(() => setLastSyncStatus(''), 5000)
     }
     
     console.log('✅ Tin tức đã được cập nhật thành công')
@@ -320,8 +342,8 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     
     setNewsItems(prev => prev.filter(item => item.id !== id))
     
-    // Always auto-delete from WordPress if wpId exists
-    if (newsToDelete?.wpId) {
+    // Auto-delete from WordPress if enabled and wpId exists
+    if (wpSyncEnabled && autoSyncEnabled && newsToDelete?.wpId) {
       setLastSyncStatus('🔄 Đang xóa từ WordPress...')
       deleteWordPressPost(newsToDelete.wpId)
         .then(() => {
@@ -350,7 +372,19 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     setLastSyncStatus('🔄 Đang tải dữ liệu từ WordPress...')
     
     try {
+      // Get WordPress settings from localStorage
+      const wpSettings = localStorage.getItem('wordpressSettings')
+      if (!wpSettings) {
+        throw new Error('WordPress settings không tồn tại')
+      }
+      
+      const settings = JSON.parse(wpSettings)
+      if (!settings.apiUrl || !settings.username || !settings.password || !settings.enabled) {
+        throw new Error('WordPress settings chưa đầy đủ')
+      }
+      
       const service = new WordPressService()
+      service.setCredentials(settings.apiUrl, settings.username, settings.password)
       const posts = await service.getPosts()
       console.log('📥 Fetched posts from WordPress:', posts.length)
       
@@ -454,22 +488,79 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
   }
 
   const createWordPressPost = async (news: NewsItem) => {
-    if (!wpSyncEnabled) return
+    if (!wpSyncEnabled) {
+      console.log('⚠️ WordPress sync disabled, skipping post creation')
+      return
+    }
     
     try {
-      const wpService = new WordPressService()
-      const wpPostData = convertToWordPressFormat(news)
+      console.log('🔍 Creating WordPress post for:', news.title)
       
-      const createdPost = await wpService.createPost(wpPostData)
+      // Get WordPress settings from localStorage
+      const wpSettings = localStorage.getItem('wordpressSettings')
+      if (!wpSettings) {
+        throw new Error('WordPress settings không tồn tại. Vui lòng cấu hình tại WordPress Settings.')
+      }
+      
+      const settings = JSON.parse(wpSettings)
+      console.log('🔧 WordPress settings:', {
+        apiUrl: settings.apiUrl,
+        username: settings.username,
+        hasPassword: !!settings.password,
+        enabled: settings.enabled
+      })
+      
+      if (!settings.apiUrl || !settings.username || !settings.password || !settings.enabled) {
+        throw new Error('WordPress settings chưa đầy đủ. Vui lòng kiểm tra cấu hình.')
+      }
+      
+      // Use API route instead of direct WordPress service
+      console.log('📡 Calling sync API...')
+      const response = await fetch('/api/sync/wordpress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'create',
+          data: news
+        })
+      })
+      
+      console.log('📡 API Response status:', response.status)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ API Error response:', errorText)
+        throw new Error(`API Error: ${response.status} - ${errorText}`)
+      }
+      
+      const result = await response.json()
+      console.log('📊 API Result:', result)
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Unknown API error')
+      }
+      
+      console.log('🎉 WordPress post created via API:', {
+        wpId: result.wpId,
+        message: result.message
+      })
       
       // Update the news item with WordPress ID
-      setNewsItems(prev => prev.map(item => 
-        item.id === news.id ? { ...item, wpId: createdPost.id } : item
-      ))
+      if (result.wpId) {
+        setNewsItems(prev => prev.map(item => 
+          item.id === news.id ? { ...item, wpId: result.wpId } : item
+        ))
+      }
       
-      console.log('✅ Đã tạo bài viết WordPress thành công:', createdPost.id)
+      console.log('✅ Đã tạo bài viết WordPress thành công:', result.wpId)
     } catch (error) {
-      console.error('Error creating WordPress post:', error)
+      console.error('❌ Error creating WordPress post:', error)
+      console.error('❌ Error details:', {
+        message: (error as Error).message,
+        stack: (error as Error).stack
+      })
       throw error
     }
   }
@@ -478,7 +569,20 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     if (!wpSyncEnabled || !news.wpId) return
     
     try {
+      // Get WordPress settings from localStorage
+      const wpSettings = localStorage.getItem('wordpressSettings')
+      if (!wpSettings) {
+        throw new Error('WordPress settings không tồn tại')
+      }
+      
+      const settings = JSON.parse(wpSettings)
+      if (!settings.apiUrl || !settings.username || !settings.password || !settings.enabled) {
+        throw new Error('WordPress settings chưa đầy đủ')
+      }
+      
       const wpService = new WordPressService()
+      wpService.setCredentials(settings.apiUrl, settings.username, settings.password)
+      
       const wpPostData = convertToWordPressFormat(news)
       
       await wpService.updatePost(news.wpId, wpPostData)
@@ -493,7 +597,20 @@ export function NewsProvider({ children }: { children: React.ReactNode }) {
     if (!wpSyncEnabled) return
     
     try {
+      // Get WordPress settings from localStorage
+      const wpSettings = localStorage.getItem('wordpressSettings')
+      if (!wpSettings) {
+        throw new Error('WordPress settings không tồn tại')
+      }
+      
+      const settings = JSON.parse(wpSettings)
+      if (!settings.apiUrl || !settings.username || !settings.password || !settings.enabled) {
+        throw new Error('WordPress settings chưa đầy đủ')
+      }
+      
       const wpService = new WordPressService()
+      wpService.setCredentials(settings.apiUrl, settings.username, settings.password)
+      
       await wpService.deletePost(wpId)
       console.log('✅ Đã xóa bài viết WordPress thành công:', wpId)
     } catch (error) {

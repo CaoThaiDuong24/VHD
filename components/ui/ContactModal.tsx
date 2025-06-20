@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { X, Send, User, Mail, Phone, MessageSquare, CheckCircle, Building } from 'lucide-react'
+import { X, Send, User, MessageSquare, CheckCircle, Building } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 interface ContactModalProps {
@@ -14,7 +14,7 @@ interface ContactModalProps {
 
 export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const languageContext = useLanguage()
-  const { t, language } = languageContext || { t: (key: string) => key, language: 'vi' }
+  const { language, t } = languageContext || { language: 'vi', t: (key: string) => key }
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -114,10 +114,10 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">
-                  {language === 'en' ? 'Contact Us' : 'Liên hệ với chúng tôi'}
+                  {t("contact.modal.title")}
                 </h2>
                 <p className="text-emerald-100 text-sm">
-                  {language === 'en' ? 'We\'d love to hear from you' : 'Chúng tôi rất mong được nghe từ bạn'}
+                  {t("contact.modal.subtitle")}
                 </p>
               </div>
             </div>
@@ -139,16 +139,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {language === 'en' ? 'Thank you!' : 'Cảm ơn bạn!'}
+                {t("contact.modal.thank.you")}
               </h3>
               <p className="text-gray-600 mb-4">
-                {language === 'en' 
-                  ? 'Your message has been sent successfully. We will get back to you soon.'
-                  : 'Tin nhắn của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ lại với bạn sớm nhất.'
-                }
+                {t("contact.modal.success.message")}
               </p>
               <div className="text-sm text-gray-500">
-                {language === 'en' ? 'This window will close automatically...' : 'Cửa sổ này sẽ tự động đóng...'}
+                {t("contact.modal.closing")}
               </div>
             </div>
           ) : (
@@ -158,19 +155,19 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <User className="w-5 h-5 mr-2 text-emerald-600" />
-                  {language === 'en' ? 'Personal Information' : 'Thông tin cá nhân'}
+                  {t("contact.modal.personal.info")}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'en' ? 'Full Name' : 'Họ và tên'} *
+                      {t("contact.modal.full.name")} *
                     </label>
                     <Input
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your full name' : 'Nhập họ và tên của bạn'}
+                      placeholder={t("contact.modal.placeholder.name")}
                       required
                       className="w-full"
                     />
@@ -185,7 +182,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your email' : 'Nhập email của bạn'}
+                      placeholder={t("contact.modal.placeholder.email")}
                       required
                       className="w-full"
                     />
@@ -195,27 +192,27 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'en' ? 'Phone Number' : 'Số điện thoại'}
+                      {t("contact.modal.phone")}
                     </label>
                     <Input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your phone number' : 'Nhập số điện thoại'}
+                      placeholder={t("contact.modal.placeholder.phone")}
                       className="w-full"
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'en' ? 'Organization' : 'Tổ chức'}
+                      {t("contact.modal.organization")}
                     </label>
                     <Input
                       name="organization"
                       value={formData.organization}
                       onChange={handleInputChange}
-                      placeholder={language === 'en' ? 'Enter your organization' : 'Nhập tên tổ chức'}
+                      placeholder={t("contact.modal.placeholder.organization")}
                       className="w-full"
                     />
                   </div>
@@ -226,31 +223,31 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <Building className="w-5 h-5 mr-2 text-emerald-600" />
-                  {language === 'en' ? 'Professional Information' : 'Thông tin nghề nghiệp'}
+                  {t("contact.modal.professional.info")}
                 </h3>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'en' ? 'Position' : 'Chức vụ'}
+                    {t("contact.modal.position")}
                   </label>
                   <Input
                     name="position"
                     value={formData.position}
                     onChange={handleInputChange}
-                    placeholder={language === 'en' ? 'Enter your position' : 'Nhập chức vụ của bạn'}
+                    placeholder={t("contact.modal.placeholder.position")}
                     className="w-full"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'en' ? 'Experience' : 'Kinh nghiệm'}
+                    {t("contact.modal.experience")}
                   </label>
                   <Textarea
                     name="experience"
                     value={formData.experience}
                     onChange={handleInputChange}
-                    placeholder={language === 'en' ? 'Tell us about your experience...' : 'Chia sẻ về kinh nghiệm của bạn...'}
+                    placeholder={t("contact.modal.placeholder.experience")}
                     rows={3}
                     className="w-full resize-none"
                   />
@@ -258,13 +255,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'en' ? 'Expectations' : 'Mong muốn'}
+                    {t("contact.modal.expectations")}
                   </label>
                   <Textarea
                     name="expectations"
                     value={formData.expectations}
                     onChange={handleInputChange}
-                    placeholder={language === 'en' ? 'What are your expectations?' : 'Bạn mong muốn điều gì?'}
+                    placeholder={t("contact.modal.placeholder.expectations")}
                     rows={3}
                     className="w-full resize-none"
                   />
@@ -282,10 +279,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   className="mt-1 w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
                 />
                 <label className="text-sm text-gray-600">
-                  {language === 'en' 
-                    ? 'I agree to the terms and conditions and privacy policy'
-                    : 'Tôi đồng ý với các điều khoản và chính sách bảo mật'
-                  }
+                  {t("contact.modal.agree.terms")}
                 </label>
               </div>
 
@@ -297,7 +291,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   onClick={onClose}
                   className="px-6"
                 >
-                  {language === 'en' ? 'Cancel' : 'Hủy'}
+                  {t("contact.modal.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -307,12 +301,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   {isLoading ? (
                     <div className="flex items-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      {language === 'en' ? 'Sending...' : 'Đang gửi...'}
+                      {t("contact.modal.sending")}
                     </div>
                   ) : (
                     <div className="flex items-center">
                       <Send className="w-4 h-4 mr-2" />
-                      {language === 'en' ? 'Send Message' : 'Gửi tin nhắn'}
+                      {t("contact.modal.send.message")}
                     </div>
                   )}
                 </Button>

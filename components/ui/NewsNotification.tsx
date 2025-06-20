@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNews } from '@/contexts/NewsContext'
-import { Bell, X, Newspaper } from 'lucide-react'
+import { X, Newspaper } from 'lucide-react'
 import { Button } from './button'
 
 export default function NewsNotification() {

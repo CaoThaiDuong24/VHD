@@ -116,6 +116,31 @@
   line-height: 1.7;
 }
 
+/* Image Optimization */
+.image-crisp {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.image-high-quality {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: optimizeQuality;
+  transform: translateZ(0);
+  will-change: transform;
+  filter: contrast(1.05) saturate(1.1);
+}
+
+.image-blur-fix {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Glass Effects */
 .glass-card {
   background: rgba(255, 255, 255, 0.95);
@@ -365,6 +390,26 @@
     white-space: normal;
     word-break: break-word;
   }
+
+  /* Mobile Vietnamese text optimization */
+  .vietnamese-text {
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+
+  .vietnamese-wrap {
+    word-spacing: 0.02em;
+    letter-spacing: 0;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  .text-no-orphans {
+    text-align: left;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
@@ -447,9 +492,57 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Vietnamese text optimization */
+.vietnamese-text {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
+  line-break: strict;
+}
+
+/* Prevent awkward line breaks in Vietnamese sentences */
+.text-no-orphans {
+  text-align: left;
+  widows: 2;
+  orphans: 2;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* Better text wrapping for long Vietnamese phrases */
+.vietnamese-wrap {
+  word-spacing: 0.02em;
+  letter-spacing: 0;
+  line-height: 1.7;
+  text-align: left;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* Preserve meaningful word groups in Vietnamese */
+.preserve-phrases {
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
 /* Hardware acceleration for smooth animations */
 .gpu-accelerated {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* Force single line display for pioneer unit text */
+.pioneer-single-line {
+  white-space: nowrap;
+  overflow: visible;
+}
+
+@media (max-width: 1023px) {
+  .pioneer-single-line {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
 }

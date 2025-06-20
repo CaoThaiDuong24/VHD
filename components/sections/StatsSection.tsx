@@ -76,7 +76,7 @@ export default function StatsSection() {
             <span className="text-primary font-semibold tracking-wide">{t("stats.outstanding")}</span>
           </div>
 
-          <h2 className="text-4xl lg:text-5xl font-display text-gray-900 mb-6 leading-tight">{t("stats.title")}</h2>
+          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-display text-gray-900 mb-6 leading-tight">{t("stats.title")}</h2>
 
           <div className="flex items-center justify-center mb-8">
             <div className="w-20 h-0.5 bg-gradient-to-r from-transparent to-primary/50 rounded-full"></div>
@@ -84,7 +84,7 @@ export default function StatsSection() {
             <div className="w-20 h-0.5 bg-gradient-to-l from-transparent to-emerald-500/50 rounded-full"></div>
           </div>
 
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-body">
+          <p className="text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-body">
             {t("stats.bottom.message")}
           </p>
         </div>

@@ -39,10 +39,10 @@ export default function NewsSection() {
             <span className="text-primary font-semibold whitespace-nowrap">{t("news.badge")}</span>
           </div>
           <h2 className="text-3xl lg:text-4xl xl:text-5xl font-display text-gray-900 mb-6 leading-tight">
-            <span className="block whitespace-nowrap">{t("news.title")}</span>
+            {t("news.title")}
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-emerald-500 mx-auto rounded-full mb-6"></div>
-          <p className="text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-body">
+          <p className="text-lg lg:text-xl text-gray-600 max-w-5xl mx-auto leading-relaxed font-body whitespace-nowrap">
             {t("news.discover.activities")}
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function NewsSection() {
               <Link href="/events" className="flex-1">
                 <Button variant="outline" className="w-full px-6 lg:px-8 py-3 lg:py-4 text-base lg:text-lg rounded-xl font-semibold border-2 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 group shadow-elegant hover:shadow-luxury whitespace-nowrap">
                   <Calendar className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform duration-300 flex-shrink-0" />
-                  {language === 'vi' ? 'Sự kiện' : 'Events'}
+                                      {t("nav.events")}
                 </Button>
               </Link>
             </div>

@@ -7,9 +7,9 @@ import { GalleryImage } from '@/lib/newsData'
 import ModernHeader from '@/components/layout/ModernHeader'
 import Footer from '@/components/layout/Footer'
 import Image from 'next/image'
-import { Calendar, MapPin, Users, ArrowLeft, Share2, BookOpen, Eye, Star, Clock, Target, Award, CheckCircle, Info, Camera, Heart, ThumbsUp, ImageIcon, ZoomIn, UserCheck, Tag, User } from 'lucide-react'
+import { Calendar, MapPin, Users, ArrowLeft, BookOpen, CheckCircle, ImageIcon, ZoomIn, UserCheck, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+
 import { notFound } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import RegistrationModal from '@/components/ui/RegistrationModal'
@@ -38,25 +38,25 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
   // Sample gallery images - In real app this would come from newsData
   const relatedImages: GalleryImage[] = newsItem?.gallery || [
     {
-      id: '1',
+      id: `${newsItem?.id || 'default'}-gallery-1-${Date.now()}`,
       src: '/images/hoi_xuat_ban.png',
       alt: language === 'vi' ? 'Hội thảo phát triển văn hóa đọc' : 'Reading culture development conference',
       caption: language === 'vi' ? 'Toàn cảnh hội trường với sự tham gia của hơn 250 chuyên gia' : 'Conference hall with over 250 experts participating'
     },
     {
-      id: '2', 
+      id: `${newsItem?.id || 'default'}-gallery-2-${Date.now()}`, 
       src: '/images/hoi_xuat_ban.png',
       alt: language === 'vi' ? 'Diễn giả chính trình bày' : 'Main speaker presenting',
       caption: language === 'vi' ? 'Các chuyên gia chia sẻ kinh nghiệm phát triển văn hóa đọc' : 'Experts sharing experience in developing reading culture'
     },
     {
-      id: '3',
+      id: `${newsItem?.id || 'default'}-gallery-3-${Date.now()}`,
       src: '/images/hoi_xuat_ban.png', 
       alt: language === 'vi' ? 'Thảo luận nhóm' : 'Group discussion',
       caption: language === 'vi' ? 'Các nhóm thảo luận về giải pháp khuyến khích đọc sách' : 'Groups discussing solutions to encourage reading'
     },
     {
-      id: '4',
+      id: `${newsItem?.id || 'default'}-gallery-4-${Date.now()}`,
       src: '/images/hoi_xuat_ban.png',
       alt: language === 'vi' ? 'Triển lãm sách' : 'Book exhibition',
       caption: language === 'vi' ? 'Khu vực triển lãm các ấn phẩm mới nhất' : 'Exhibition area for latest publications'
@@ -105,9 +105,7 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
     }
   }
 
-  const handleRegistrationClick = () => {
-    setIsRegistrationModalOpen(true)
-  }
+
 
   const handleImageClick = (imageSrc: string) => {
     setSelectedImage(imageSrc)
@@ -194,9 +192,9 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                           }`}>
                             <CheckCircle className="h-3 w-3" />
                             <span>
-                              {newsItem.status === 'completed' ? (language === 'vi' ? 'Hoàn thành' : 'Completed') : 
-                               newsItem.status === 'published' ? (language === 'vi' ? 'Xuất bản' : 'Published') : 
-                               (language === 'vi' ? 'Nháp' : 'Draft')}
+                                              {newsItem.status === 'completed' ? t("news.detail.completed") :
+                newsItem.status === 'published' ? t("news.detail.published") :
+                t("news.detail.draft")}
                             </span>
                           </div>
                         </div>
@@ -278,14 +276,14 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                     )}
 
                     {/* Tags Section */}
-                    {newsItem.tags && (
+                    {newsItem.tags && newsItem.tags.length > 0 && (
                       <div className="mt-8 pt-6 border-t border-gradient-to-r from-gray-200 via-gray-100 to-gray-200">
                         <div className="text-center">
                           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Từ khóa</p>
                           <div className="flex flex-wrap items-center gap-2 justify-center">
                             {(Array.isArray(newsItem.tags) ? newsItem.tags : (newsItem.tags as string).split(',')).map((tag: string, index: number) => (
                               <span
-                                key={index}
+                                key={`tag-${newsItem.id}-${index}-${tag.trim()}`}
                                 className="group inline-flex items-center gap-1 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100 px-4 py-2 rounded-full text-xs font-medium text-blue-700 border border-blue-200/50 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105"
                               >
                                 <span className="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></span>
@@ -316,9 +314,9 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                   'bg-yellow-500 text-white'
                 }`}>
                   <CheckCircle className="h-4 w-4" />
-                  {newsItem.status === 'completed' ? (language === 'vi' ? 'Đã hoàn thành' : 'Completed') : 
-                   newsItem.status === 'published' ? (language === 'vi' ? 'Đã xuất bản' : 'Published') : 
-                   (language === 'vi' ? 'Nháp' : 'Draft')}
+                  {newsItem.status === 'completed' ? t("news.detail.completed") : 
+                   newsItem.status === 'published' ? t("news.detail.published") : 
+                   t("news.detail.draft")}
                 </div>
               </div>
 
@@ -332,18 +330,18 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                       {detailContent.split('\n').map((paragraph, index) => {
                         if (paragraph.startsWith('•')) {
                           return (
-                            <li key={index} className="text-gray-700 leading-relaxed mb-3 ml-4 relative before:content-['•'] before:absolute before:left-[-16px] before:text-primary before:font-bold">
+                            <li key={`paragraph-${newsItem.id}-${index}`} className="text-gray-700 leading-relaxed mb-3 ml-4 relative before:content-['•'] before:absolute before:left-[-16px] before:text-primary before:font-bold">
                               {paragraph.substring(1).trim()}
                             </li>
                           )
                         } else if (paragraph.trim() === '') {
-                          return <div key={index} className="h-4" />
+                          return <div key={`empty-${newsItem.id}-${index}`} className="h-4" />
                         } else if (paragraph.includes('•')) {
                           return (
-                            <div key={index} className="my-8 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                            <div key={`list-${newsItem.id}-${index}`} className="my-8 bg-gray-50 rounded-xl p-6 border border-gray-200">
                               <div className="grid gap-4">
                                 {paragraph.split('•').slice(1).map((item, itemIndex) => (
-                                  <div key={itemIndex} className="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                                  <div key={`item-${newsItem.id}-${index}-${itemIndex}`} className="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-200">
                                     <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                                       <CheckCircle className="h-5 w-5 text-white" />
                                     </div>
@@ -359,7 +357,7 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                           )
                         } else {
                           return (
-                            <p key={index} className="text-gray-700 leading-relaxed mb-6 text-lg first-letter:text-2xl first-letter:font-bold first-letter:text-green-600 first-letter:mr-1">
+                            <p key={`text-${newsItem.id}-${index}`} className="text-gray-700 leading-relaxed mb-6 text-lg first-letter:text-2xl first-letter:font-bold first-letter:text-green-600 first-letter:mr-1">
                               {paragraph}
                             </p>
                           )
@@ -385,17 +383,14 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                   <ImageIcon className="h-8 w-8 text-white" />
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  {language === 'vi' ? 'Thư viện ảnh' : 'Photo Gallery'}
+                  {t("news.detail.event.gallery")}
                 </h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  {language === 'vi' 
-                    ? `Khám phá ${relatedImages.length} hình ảnh độc quyền từ sự kiện này` 
-                    : `Explore ${relatedImages.length} exclusive photos from this event`
-                  }
+                  {t("news.detail.gallery.description").replace('{count}', relatedImages.length.toString())}
                 </p>
                 <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">
                   <Eye className="h-4 w-4" />
-                  <span>{language === 'vi' ? 'Nhấn vào ảnh để xem chi tiết' : 'Click on images for details'}</span>
+                  <span>{t("news.detail.gallery.click.hint")}</span>
                 </div>
               </div>
 
@@ -403,7 +398,7 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {relatedImages.map((image, index) => (
                   <div 
-                    key={image.id} 
+                    key={`gallery-${newsItem.id}-${image.id || index}`} 
                     className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:scale-105"
                     onClick={() => handleImageClick(image.src)}
                   >
@@ -426,7 +421,7 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                       {/* Featured Badge for first image */}
                       {index === 0 && (
                         <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-lg text-xs font-semibold">
-                          ✨ {language === 'vi' ? 'Nổi bật' : 'Featured'}
+                          ✨ {t("news.detail.featured")}
                         </div>
                       )}
                     </div>
@@ -447,14 +442,14 @@ export default function NewsDetailClient({ params }: NewsDetailClientProps) {
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-5 w-5 text-indigo-500" />
                     <span className="text-sm font-medium text-gray-700">
-                      {relatedImages.length} {language === 'vi' ? 'ảnh' : 'photos'}
+                      {relatedImages.length} {t("news.detail.gallery.stats.photos")}
                     </span>
                   </div>
                   <div className="w-px h-6 bg-gray-300"></div>
                   <div className="flex items-center gap-2">
                     <Eye className="h-5 w-5 text-green-500" />
                     <span className="text-sm font-medium text-gray-700">
-                      {language === 'vi' ? 'Độ phân giải cao' : 'High resolution'}
+                      {t("news.detail.high.resolution")}
                     </span>
                   </div>
                 </div>

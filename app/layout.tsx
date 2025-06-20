@@ -24,7 +24,7 @@ const playfairDisplay = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "RCP - Trung tâm Phát triển Văn hóa đọc và Kinh tế Xuất bản",
+  title: "RCP - Center for Developing Reading Culture and Publishing Economy",
   description: "Kết nối tri thức – Lan tỏa văn hóa đọc – Đồng hành cùng sự phát triển ngành xuất bản Việt Nam",
   keywords: "reading culture, publishing, RCP, Vietnam Publishing Association, văn hóa đọc, xuất bản",
     generator: 'v0.dev'

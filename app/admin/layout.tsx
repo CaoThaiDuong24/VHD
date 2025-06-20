@@ -209,7 +209,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary via-blue-500 to-emerald-500 flex items-center justify-center shadow-sm">
               <img 
                 src="/images/rcp-logo.png" 
-                alt="RCP Logo"
+                alt="Logo RCP"
                 className="w-6 h-6 object-contain"
                 onError={(e) => {
                   // Fallback to text logo if image fails
@@ -360,7 +360,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               {/* Clock Display */}
               <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
                 <div className="flex flex-col items-end">
-                  <div className="text-sm font-bold text-gray-900 tabular-nums">
+                  <div className="text-sm font-bold text-gray-900 tabular-nums" suppressHydrationWarning>
                     {currentTime.toLocaleTimeString('vi-VN', { 
                       hour12: false,
                       hour: '2-digit', 
@@ -368,7 +368,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                       second: '2-digit'
                     })}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium">
+                  <div className="text-xs text-gray-500 font-medium" suppressHydrationWarning>
                     {currentTime.toLocaleDateString('vi-VN', { 
                       day: '2-digit', 
                       month: '2-digit', 
@@ -449,7 +449,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
                       <div className="px-4 py-2">
                         <p className="text-xs text-gray-500 mb-1">Phiên làm việc</p>
-                        <p className="text-xs text-gray-700">
+                        <p className="text-xs text-gray-700" suppressHydrationWarning>
                           Đăng nhập lúc: {currentTime.toLocaleTimeString('vi-VN')}
                         </p>
                       </div>

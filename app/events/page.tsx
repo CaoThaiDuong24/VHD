@@ -14,7 +14,7 @@ import Image from "next/image"
 import EventRegistrationModal from "@/components/ui/EventRegistrationModal"
 
 export default function EventsPage() {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const { events } = useEvents()
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState(1)
@@ -103,9 +103,9 @@ export default function EventsPage() {
     displayParticipants: language === 'vi' ? event.participants : (event.participantsEn || event.participants),
     displayCategory: language === 'vi' ? event.category : (event.categoryEn || event.category),
     displayTime: event.time || "08:00 - 17:00",
-    statusLabel: event.status === 'upcoming' ? (language === 'vi' ? 'Sắp diễn ra' : 'Upcoming') : 
-                 event.status === 'ongoing' ? (language === 'vi' ? 'Đang diễn ra' : 'Ongoing') : 
-                 language === 'vi' ? 'Sắp diễn ra' : 'Upcoming'
+    statusLabel: event.status === 'upcoming' ? t("event.status.upcoming") : 
+                 event.status === 'ongoing' ? t("event.status.ongoing") : 
+                 t("event.status.upcoming")
   }))
 
   // Pagination
@@ -126,22 +126,22 @@ export default function EventsPage() {
             <div className="text-center">
               <div className="inline-flex items-center px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-6">
                 <Calendar className="w-4 h-4 mr-2" />
-                {language === 'vi' ? 'Sự kiện & Hoạt động' : 'Events & Activities'}
+                {t("events.activities")}
               </div>
               <h1 className="font-display mb-6">
                 <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-gray-900 leading-tight mb-2 lg:mb-4">
                   <span className="block">
-                    {language === 'vi' ? 'Tham gia các' : 'Join Our'}
+                    {t("events.join.our")}
                   </span>
                 </div>
                 <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight mb-2 lg:mb-4">
                   <span className="gradient-text-primary font-bold">
-                    {language === 'vi' ? 'Sự kiện văn hóa đọc' : 'Reading Culture Events'}
+                    {t("events.reading.culture")}
                   </span>
                 </div>
                 <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-gray-800 leading-tight">
                   <span className="block">
-                    {language === 'vi' ? 'Ý nghĩa & Bổ ích' : 'Meaningful & Valuable'}
+                    {t("events.meaningful")}
                   </span>
                 </div>
               </h1>
@@ -151,21 +151,18 @@ export default function EventsPage() {
                 <div className="w-8 lg:w-12 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"></div>
               </div>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                {language === 'vi' 
-                  ? 'Khám phá những sự kiện thú vị, kết nối cộng đồng và cùng nhau phát triển văn hóa đọc trong xã hội'
-                  : 'Discover exciting events, connect with community and develop reading culture together in society'
-                }
+                {t("events.discover")}
               </p>
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* Events Section */}
         <section className="py-20 bg-white">
-          <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6">
             <div className="mb-8">
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-                {language === 'vi' ? 'Sự kiện sắp tới' : 'Upcoming Events'}
+                {t("events.upcoming")}
               </h2>
               <div className="w-16 h-1 bg-green-600 rounded-full"></div>
             </div>
@@ -192,7 +189,7 @@ export default function EventsPage() {
                         {event.displayCategory}
                       </Badge>
                     </div>
-                  </div>
+                    </div>
 
                   {/* Event Content */}
                   <CardContent className="p-6">
@@ -213,8 +210,8 @@ export default function EventsPage() {
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-green-600" />
                           <span>{event.displayTime}</span>
-                        </div>
-                        
+                    </div>
+
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-green-600" />
                           <span className="line-clamp-1">{event.displayLocation}</span>
@@ -231,9 +228,9 @@ export default function EventsPage() {
                           onClick={() => handleRegisterClick(event)}
                           className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
                         >
-                          {language === 'vi' ? 'Đăng ký tham gia' : 'Register to participate'}
+                          {t("event.register")}
                         </Button>
-                      </div>
+                    </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -245,29 +242,26 @@ export default function EventsPage() {
               <div className="text-center py-12">
                 <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  {language === 'vi' ? 'Chưa có sự kiện nào' : 'No events available'}
+                  {t("events.no.available")}
                 </h3>
-                <p className="text-gray-500">
-                  {language === 'vi' 
-                    ? 'Hiện tại chưa có sự kiện nào được lên lịch. Vui lòng quay lại sau!'
-                    : 'There are no events scheduled at the moment. Please check back later!'
-                  }
-                </p>
+                                  <p className="text-gray-500">
+                    {t("events.check.back")}
+                  </p>
               </div>
             )}
 
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center space-x-2">
-                <Button
+                                  <Button
                   variant="outline"
-                  size="sm"
+                                    size="sm"
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   className="rounded-lg"
-                >
+                                  >
                   <ChevronLeft className="h-4 w-4" />
-                </Button>
+                                  </Button>
                 
                 <div className="flex space-x-1">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
@@ -294,33 +288,33 @@ export default function EventsPage() {
                     );
                   })}
                 </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
                   className="rounded-lg"
-                >
+                      >
                   <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-        </section>
+                      </Button>
+                    </div>
+                  )}
+        </div>
+      </section>
       </main>
 
       <Footer />
-
+      
       {/* Event Registration Modal */}
       {selectedEvent && (
-        <EventRegistrationModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+      <EventRegistrationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
           eventTitle={selectedEvent.title}
           eventDate={selectedEvent.date}
           eventLocation={selectedEvent.location}
-        />
+      />
       )}
     </div>
   )

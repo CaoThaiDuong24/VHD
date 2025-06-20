@@ -104,11 +104,20 @@ export default function VisionMissionSection() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-3xl font-display text-gray-900 mb-6 leading-tight">
+                    <h3 className="text-2xl lg:text-3xl font-display text-gray-900 mb-6 leading-tight">
                       {t("vision.vision.title")}
                     </h3>
                     <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mb-6"></div>
-                    <p className="text-lg text-gray-600 leading-relaxed mb-6">{t("vision.vision.content")}</p>
+                    <div className="text-lg text-gray-600 leading-relaxed mb-6 vietnamese-text">
+                      {t("vision.vision.content").includes('\n\n')
+                        ? t("vision.vision.content").split('\n\n').map((paragraph, index) => (
+                            <p key={index} className={`vietnamese-wrap text-no-orphans ${index > 0 ? "mt-4" : ""}`}>
+                              {paragraph}
+                            </p>
+                          ))
+                        : <p className="vietnamese-wrap text-no-orphans">{t("vision.vision.content")}</p>
+                      }
+                    </div>
                     <div className="space-y-3">
                       <div className="flex items-center text-blue-600 font-medium">
                         <Star className="w-5 h-5 mr-3" />
@@ -134,11 +143,20 @@ export default function VisionMissionSection() {
               <div className="p-10 md:p-16">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                   <div>
-                    <h3 className="text-3xl font-display text-gray-900 mb-6 leading-tight">
+                    <h3 className="text-2xl lg:text-3xl font-display text-gray-900 mb-6 leading-tight">
                       {t("vision.mission.title")}
                     </h3>
                     <div className="w-16 h-1 bg-gradient-to-r from-primary to-emerald-500 rounded-full mb-6"></div>
-                    <p className="text-lg text-gray-600 leading-relaxed mb-6">{t("vision.mission.content")}</p>
+                    <div className="text-lg text-gray-600 leading-relaxed mb-6 vietnamese-text">
+                      {t("vision.mission.content").includes('\n\n')
+                        ? t("vision.mission.content").split('\n\n').map((paragraph, index) => (
+                            <p key={index} className={`vietnamese-wrap text-no-orphans ${index > 0 ? "mt-4" : ""}`}>
+                              {paragraph}
+                            </p>
+                          ))
+                        : <p className="vietnamese-wrap text-no-orphans">{t("vision.mission.content")}</p>
+                      }
+                    </div>
                     <div className="space-y-3">
                       <div className="flex items-center text-primary font-medium">
                         <Target className="w-5 h-5 mr-3" />
@@ -175,7 +193,7 @@ export default function VisionMissionSection() {
               style={{ display: activeTab === "values" ? "block" : "none" }}
             >
               <div className="p-10 md:p-16">
-                <h3 className="text-3xl font-display text-gray-900 mb-8 text-center">{t("vision.values.title")}</h3>
+                <h3 className="text-2xl lg:text-3xl font-display text-gray-900 mb-8 text-center leading-tight">{t("vision.values.title")}</h3>
 
                 {/* Main Values Image */}
                 <div className="relative mb-12">
@@ -245,7 +263,7 @@ export default function VisionMissionSection() {
                         </div>
                       </div>
 
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300 whitespace-pre-line text-center leading-snug">
                         {value.title}
                       </h4>
                       <p className="text-gray-600 text-sm leading-relaxed">{value.description}</p>

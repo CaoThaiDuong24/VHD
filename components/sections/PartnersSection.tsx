@@ -6,7 +6,6 @@ import Image from "next/image"
 import { useState, useEffect } from "react"
 export default function PartnersSection() {
   const { t } = useLanguage()
-  const [hoveredPartner, setHoveredPartner] = useState<number | null>(null)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -82,7 +81,7 @@ export default function PartnersSection() {
             <div className="w-24 h-1 bg-gradient-to-l from-transparent to-emerald-500 rounded-full"></div>
           </div>
 
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-body">
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-body whitespace-nowrap">
             {t("partners.description")}
           </p>
         </div>
@@ -104,35 +103,27 @@ export default function PartnersSection() {
                 {mainPartners.map((partner, index) => (
                   <div
                     key={index}
-                    className={`group cursor-pointer transition-all duration-700 flex flex-col items-center transform ${
+                    className={`flex flex-col items-center transform ${
                       isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
                     }`}
                     style={{ transitionDelay: `${index * 100}ms` }}
-                    onMouseEnter={() => setHoveredPartner(index)}
-                    onMouseLeave={() => setHoveredPartner(null)}
                   >
                     {/* Partner Logo Container */}
                     <div className="relative flex items-center justify-center mb-4">
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-emerald-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                      <div className="w-20 h-20 lg:w-24 lg:h-24 glass-card rounded-2xl shadow-elegant flex items-center justify-center p-3 lg:p-4 group-hover:shadow-luxury transition-all duration-500 border border-white/20 group-hover:border-primary/20 relative z-10 hover-lift">
+                      <div className="w-20 h-20 lg:w-24 lg:h-24 bg-white rounded-2xl shadow-lg flex items-center justify-center p-3 lg:p-4 border border-gray-100 relative z-10">
                         <Image
                           src={partner.logo || "/placeholder.svg"}
                           alt={partner.name}
                           width={60}
                           height={60}
-                          className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-700 w-full h-full"
+                          className="object-contain w-full h-full"
                         />
                       </div>
                     </div>
 
                     {/* Partner Name */}
-                    <div
-                      className={`text-center transition-all duration-500 ${
-                        hoveredPartner === index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-                      }`}
-                    >
-                      <div className="text-xs lg:text-sm font-semibold text-gray-800 leading-tight text-center max-w-[120px] lg:max-w-[140px] mb-1">
+                    <div className="text-center">
+                      <div className="text-xs lg:text-sm font-semibold text-gray-800 leading-tight text-center max-w-[140px] lg:max-w-[160px] mb-1 whitespace-pre-line">
                         {partner.name}
                       </div>
                       <div className="text-xs text-primary font-medium text-center">{partner.category}</div>

@@ -34,7 +34,7 @@ export default function AdminLogin() {
     const operators = ['+', '-', '*']
     const operator = operators[Math.floor(Math.random() * operators.length)]
     
-    let question = `${num1} ${operator} ${num2}`
+    const question = `${num1} ${operator} ${num2}`
     let answer = 0
     
     switch (operator) {
